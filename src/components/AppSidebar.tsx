@@ -1,4 +1,4 @@
-import { Home, Settings, FolderGit2 } from "lucide-react";
+import { Home, Settings, FolderGit2, Plus } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,11 +15,6 @@ const menuItems = [
     title: "Home",
     icon: Home,
     url: "/",
-  },
-  {
-    title: "Projects",
-    icon: FolderGit2,
-    url: "/projects",
   },
   {
     title: "User Settings",
@@ -46,6 +41,22 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="hover-scale">
+                  <a href="/projects/new" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+                    <Plus className="h-4 w-4" />
+                    <span>Add new project</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

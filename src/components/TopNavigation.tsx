@@ -37,7 +37,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                 <NavigationMenuItem key={tab.id}>
                   {tab.children ? (
                     <div className="flex items-center">
-                      <div className="relative flex rounded-lg overflow-hidden border border-border/40">
+                      <div className="relative flex rounded-lg overflow-hidden bg-muted/50">
                         {tab.children.map((child, index) => (
                           <button
                             key={child.id}
@@ -48,8 +48,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                                 ? "bg-primary text-primary-foreground"
                                 : "text-muted-foreground hover:text-primary hover:bg-muted",
                               index === 0 && "rounded-l-md",
-                              index === tab.children.length - 1 && "rounded-r-md",
-                              index !== tab.children.length - 1 && "border-r border-border/40"
+                              index === tab.children.length - 1 && "rounded-r-md"
                             )}
                           >
                             {child.label}

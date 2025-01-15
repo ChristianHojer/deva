@@ -36,35 +36,27 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
               {tabs.map((tab) => (
                 <NavigationMenuItem key={tab.id}>
                   {tab.children ? (
-                    <>
-                      <NavigationMenuTrigger
-                        className={cn(
-                          "px-4 py-2 mx-2",
-                          (activeTab === 'discover' || activeTab === 'iterate') &&
-                            "bg-primary text-primary-foreground"
-                        )}
-                      >
-                        {tab.label}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <div className="grid gap-1 p-2 w-40">
-                          {tab.children.map((child) => (
-                            <button
-                              key={child.id}
-                              onClick={() => setActiveTab(child.id)}
-                              className={cn(
-                                "px-4 py-2 rounded-md text-sm font-medium transition-colors",
-                                activeTab === child.id
-                                  ? "bg-primary text-primary-foreground"
-                                  : "text-muted-foreground hover:text-primary hover:bg-muted"
-                              )}
-                            >
-                              {child.label}
-                            </button>
-                          ))}
-                        </div>
-                      </NavigationMenuContent>
-                    </>
+                    <div className="flex items-center">
+                      <div className="relative flex rounded-lg overflow-hidden border border-border/40">
+                        {tab.children.map((child, index) => (
+                          <button
+                            key={child.id}
+                            onClick={() => setActiveTab(child.id)}
+                            className={cn(
+                              "px-4 py-2 text-sm font-medium transition-colors relative",
+                              activeTab === child.id
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-primary hover:bg-muted",
+                              index === 0 && "rounded-l-md",
+                              index === tab.children.length - 1 && "rounded-r-md",
+                              index !== tab.children.length - 1 && "border-r border-border/40"
+                            )}
+                          >
+                            {child.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ) : (
                     <button
                       onClick={() => setActiveTab(tab.id)}

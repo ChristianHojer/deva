@@ -1,6 +1,5 @@
 import { MainLayout } from "@/components/MainLayout";
 import { ChatSection } from "@/components/sections/ChatSection";
-import { VisualizationSection } from "@/components/sections/VisualizationSection";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -98,9 +97,8 @@ const Index = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-10rem)]">
+      <div className="h-[calc(100vh-10rem)]">
         <ChatSection />
-        <VisualizationSection />
       </div>
     </MainLayout>
   );

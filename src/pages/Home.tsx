@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Plus, Code, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -24,29 +23,39 @@ const Home = () => {
       return;
     }
 
+    // Create a new project
+    const newProject = {
+      id: crypto.randomUUID(),
+      name: 'Untitled Project',
+      createdAt: new Date(),
+    };
+
+    // Get existing projects or initialize empty array
+    const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+    
+    // Add new project to the beginning of the array
+    const updatedProjects = [newProject, ...existingProjects];
+    
+    // Save to localStorage
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+
     // Store the initial message in sessionStorage to use it in the project
     sessionStorage.setItem('initialProjectMessage', message);
     navigate('/discover');
   };
 
   return (
-    <div className="container max-w-6xl mx-auto py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-6">
-          Create without limits. Create your ideas.
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+      <div className="max-w-3xl w-full space-y-8 text-center mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">
+          Create without limits.
+          <br />
+          Create your ideas.
         </h1>
       </div>
 
-      {/* Chat Window */}
-      <div className="max-w-4xl mx-auto mb-16">
-        <div className="flex gap-3 items-center bg-[#0A0A0A] rounded-xl shadow-xl border border-[#1E1E1E] p-4">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-gray-400 hover:text-gray-300 hover:bg-[#1E1E1E]"
-          >
-            <Upload className="h-5 w-5" />
-          </Button>
+      <div className="w-full max-w-3xl">
+        <div className="flex gap-2 p-4 rounded-lg bg-gray-800">
           <Input 
             placeholder="How can I help you today?" 
             className="flex-1 bg-transparent border-0 focus-visible:ring-0 text-gray-200 placeholder:text-gray-500 text-lg"
@@ -65,38 +74,18 @@ const Home = () => {
             Send
           </Button>
         </div>
-      </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        {/* Deva Project Card */}
-        <Card 
-          className="overflow-hidden hover-scale cursor-pointer"
-          onClick={handleStartCreating}
-        >
-          <div className="aspect-video w-full overflow-hidden">
-            <img 
-              src="https://images.unsplash.com/photo-1498050108023-c5249f4df085"
-              alt="Code Editor"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="p-4">
-            <div className="flex items-center gap-2">
-              <Code className="h-5 w-5" />
-              <h3 className="font-semibold text-lg">Deva</h3>
-            </div>
-          </div>
-        </Card>
-
-        {/* Empty Project Card */}
-        <Card 
-          className="overflow-hidden hover-scale cursor-pointer flex flex-col items-center justify-center aspect-[4/3]"
-          onClick={handleStartCreating}
-        >
-          <Plus className="h-12 w-12 mb-2 text-gray-400" />
-          <span className="text-gray-600 font-medium">Start creating</span>
-        </Card>
+        <div className="mt-8 flex justify-center gap-4">
+          <Button variant="outline" className="text-gray-400 border-gray-700" onClick={handleStartCreating}>
+            <Plus className="mr-2 h-4 w-4" /> Create from scratch
+          </Button>
+          <Button variant="outline" className="text-gray-400 border-gray-700">
+            <Code className="mr-2 h-4 w-4" /> Import from GitHub
+          </Button>
+          <Button variant="outline" className="text-gray-400 border-gray-700">
+            <Upload className="mr-2 h-4 w-4" /> Upload files
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/MainLayout";
 import Index from "./pages/Index";
 import { Settings } from "./pages/Settings";
@@ -18,17 +18,13 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route element={<MainLayout>
-            <Routes>
-              <Route path="/discover" element={<Index />} />
-              <Route path="/iterate" element={<Index />} />
-              <Route path="/visualization" element={<Index />} />
-              <Route path="/code" element={<Index />} />
-              <Route path="/bugs" element={<Index />} />
-            </Routes>
-          </MainLayout>} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/discover" element={<MainLayout><Index /></MainLayout>} />
+          <Route path="/iterate" element={<MainLayout><Index /></MainLayout>} />
+          <Route path="/visualization" element={<MainLayout><Index /></MainLayout>} />
+          <Route path="/code" element={<MainLayout><Index /></MainLayout>} />
+          <Route path="/bugs" element={<MainLayout><Index /></MainLayout>} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

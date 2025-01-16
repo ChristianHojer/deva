@@ -5,11 +5,11 @@ import { AppSidebar } from './AppSidebar';
 import { TopNavigation } from './TopNavigation';
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('discover');
   const location = useLocation();
 
   useEffect(() => {
-    const path = location.pathname.substring(1); // Remove leading slash
+    const path = location.pathname.substring(1);
     if (path) {
       setActiveTab(path);
     }

@@ -12,11 +12,11 @@ const tabs = [
 interface TopNavigationProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  projectId?: string;
 }
 
-export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) => {
+export const TopNavigation = ({ activeTab, setActiveTab, projectId }: TopNavigationProps) => {
   const location = useLocation();
-  const currentPath = location.pathname;
 
   return (
     <nav className="border-b border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,11 +26,11 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
             {tabs.map((tab) => (
               <Link
                 key={tab.id}
-                to={tab.path}
+                to={`/project/${projectId}${tab.path}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "px-4 py-2 rounded-md text-sm font-medium transition-colors",
-                  currentPath === tab.path
+                  activeTab === tab.id
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-primary bg-gray-200 hover:bg-gray-300"
                 )}

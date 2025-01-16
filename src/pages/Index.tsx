@@ -93,10 +93,10 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       <div className="h-[calc(100vh-10rem)]">
-        {shouldShowChat ? (
-          <ChatSection activeTab={activeTab} />
+        {activeTab === "visualization" ? (
+          <VisualizationSection />
         ) : (
-          activeTab === "visualization" && <VisualizationSection />
+          shouldShowChat && <ChatSection activeTab={activeTab} />
         )}
       </div>
     </MainLayout>

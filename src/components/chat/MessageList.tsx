@@ -24,7 +24,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
             className={cn(
               "max-w-[80%]",
               message.sender === 'user' 
-                ? "ml-auto text-right" 
+                ? "ml-auto" 
                 : "mr-auto"
             )}
           >
@@ -51,9 +51,8 @@ export const MessageList = ({ messages }: MessageListProps) => {
               </div>
             ) : (
               <div className={cn(
-                "text-gray-900",
                 message.sender === 'user' 
-                  ? "text-right" 
+                  ? "bg-secondary rounded-lg p-3 text-right" 
                   : "text-left"
               )}>
                 {message.content}

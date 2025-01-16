@@ -39,23 +39,14 @@ const Index = () => {
       return;
     }
 
-    // Get existing projects
     const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-    
-    // Find the most recent project (should be the first one)
     const latestProject = existingProjects[0];
     
     if (latestProject) {
-      // Update the project name and description
       latestProject.name = projectName;
       latestProject.description = projectDescription;
-      
-      // Save back to localStorage
       localStorage.setItem('projects', JSON.stringify(existingProjects));
-      
-      // Clear the initial message
       sessionStorage.removeItem('initialProjectMessage');
-      
       setOpen(false);
       
       toast({
@@ -99,7 +90,7 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       <div className="h-[calc(100vh-10rem)]">
-        <ChatSection activeTab={activeTab} />
+        {activeTab !== 'visualization' && <ChatSection activeTab={activeTab} />}
       </div>
     </MainLayout>
   );

@@ -1,4 +1,4 @@
-import { Home, Settings, Plus, Archive } from "lucide-react";
+import { Home, Settings, Plus } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,24 +11,9 @@ import {
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { ProjectDialog } from "./sidebar/ProjectDialog";
+import { ProjectMenuItem } from "./sidebar/ProjectMenuItem";
 
 type Project = {
   id: string;
@@ -153,44 +138,16 @@ export function AppSidebar({ selectedProjectId }: AppSidebarProps) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingProject ? "Rename project" : "Name your project"}</DialogTitle>
-            <DialogDescription>
-              {editingProject 
-                ? "Give your project a new name."
-                : "Give your project a name and optionally describe what you want to achieve."
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Input
-                id="name"
-                placeholder="Project name"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-              />
-            </div>
-            {!editingProject && (
-              <div className="space-y-2">
-                <Textarea
-                  id="description"
-                  placeholder="Tell me more about your project (optional)"
-                  value={projectDescription}
-                  onChange={(e) => setProjectDescription(e.target.value)}
-                />
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={handleCreateProject}>
-              {editingProject ? "Save changes" : "Save project"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProjectDialog
+        open={open}
+        setOpen={setOpen}
+        projectName={projectName}
+        setProjectName={setProjectName}
+        projectDescription={projectDescription}
+        setProjectDescription={setProjectDescription}
+        editingProject={editingProject}
+        handleCreateProject={handleCreateProject}
+      />
 
       <Sidebar>
         <SidebarContent>
@@ -217,37 +174,15 @@ export function AppSidebar({ selectedProjectId }: AppSidebarProps) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {activeProjects.map((project) => (
-                  <ContextMenu key={project.id}>
-                    <ContextMenuTrigger>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          className={`hover-scale ${
-                            selectedProjectId === project.id ? "bg-gray-800 text-white" : ""
-                          }`}
-                          onClick={() => handleProjectClick(project.id)}
-                        >
-                          <button className="flex w-full items-center gap-2">
-                            <span>{project.name || 'Untitled Project'}</span>
-                          </button>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent>
-                      <ContextMenuItem onClick={() => handleRenameProject(project)}>
-                        Rename
-                      </ContextMenuItem>
-                      <ContextMenuItem onClick={() => handleArchiveProject(project.id)}>
-                        Archive
-                      </ContextMenuItem>
-                      <ContextMenuItem 
-                        className="text-red-600"
-                        onClick={() => handleDeleteProject(project.id)}
-                      >
-                        Delete
-                      </ContextMenuItem>
-                    </ContextMenuContent>
-                  </ContextMenu>
+                  <ProjectMenuItem
+                    key={project.id}
+                    project={project}
+                    selectedProjectId={selectedProjectId}
+                    onProjectClick={handleProjectClick}
+                    onRename={handleRenameProject}
+                    onArchive={handleArchiveProject}
+                    onDelete={handleDeleteProject}
+                  />
                 ))}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className="hover-scale">

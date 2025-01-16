@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Message {
   content: string;
@@ -17,12 +17,14 @@ interface ChatSectionProps {
 }
 
 export const ChatSection = ({ variant = "primary", className, activeTab }: ChatSectionProps) => {
-  // Use a map to store messages for each tab
-  const [messagesByTab, setMessagesByTab] = useState<Record<string, Message[]>>({});
+  // Store messages in component state
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
 
-  // Get messages for current tab
-  const currentMessages = messagesByTab[activeTab] || [];
+  // Reset messages when tab changes
+  useEffect(() => {
+    setMessages([]);
+  }, [activeTab]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -33,10 +35,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       timestamp: new Date(),
     };
 
-    setMessagesByTab(prev => ({
-      ...prev,
-      [activeTab]: [...(prev[activeTab] || []), newMessage]
-    }));
+    setMessages(prev => [...prev, newMessage]);
     setInputMessage('');
   };
 
@@ -53,7 +52,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       className
     )}>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        {currentMessages.map((message, index) => (
+        {messages.map((message, index) => (
           <div
             key={index}
             className={cn(

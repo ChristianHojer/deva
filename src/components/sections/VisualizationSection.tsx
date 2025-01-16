@@ -34,7 +34,27 @@ export const VisualizationSection = () => {
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
-                input.onchange = (e) => handleFileUpload(e as React.ChangeEvent<HTMLInputElement>);
+                input.onchange = function(e) {
+                  if (e && e.target instanceof HTMLInputElement) {
+                    handleFileUpload({
+                      target: e.target,
+                      currentTarget: e.target,
+                      preventDefault: () => {},
+                      stopPropagation: () => {},
+                      isPropagationStopped: () => false,
+                      isDefaultPrevented: () => false,
+                      persist: () => {},
+                      nativeEvent: e as unknown as Event,
+                      bubbles: e.bubbles,
+                      cancelable: e.cancelable,
+                      defaultPrevented: e.defaultPrevented,
+                      eventPhase: e.eventPhase,
+                      isTrusted: e.isTrusted,
+                      timeStamp: e.timeStamp,
+                      type: e.type
+                    } as React.ChangeEvent<HTMLInputElement>);
+                  }
+                };
                 input.click();
               }}
             >

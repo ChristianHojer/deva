@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload } from "lucide-react";
+import { ArrowUp, Upload } from "lucide-react";
 import { useRef } from "react";
 
 interface MessageInputProps {
@@ -52,9 +52,10 @@ export const MessageInput = ({
           />
           <Button 
             onClick={() => handleSendMessage()}
-            className="shrink-0"
+            className="shrink-0 bg-black hover:bg-black/90 text-white p-2"
+            size="icon"
           >
-            Send
+            <ArrowUp className="h-5 w-5" />
           </Button>
         </div>
       </div>

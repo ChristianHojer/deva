@@ -22,42 +22,50 @@ export const MessageList = ({ messages }: MessageListProps) => {
           <div
             key={message.id}
             className={cn(
-              "max-w-[80%]",
+              "flex",
               message.sender === 'user' 
-                ? "ml-auto" 
-                : "mr-auto"
+                ? "justify-end" 
+                : "justify-start"
             )}
           >
-            {message.file_url ? (
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-gray-600">
-                  Uploaded: {message.file_name}
+            <div className={cn(
+              "max-w-[80%] break-words",
+              message.sender === 'user' 
+                ? "flex flex-col items-end" 
+                : "flex flex-col items-start"
+            )}>
+              {message.file_url ? (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-gray-600">
+                    Uploaded: {message.file_name}
+                  </div>
+                  {message.file_type?.startsWith('image/') ? (
+                    <img 
+                      src={message.file_url} 
+                      alt={message.file_name}
+                      className="max-w-full rounded-md"
+                    />
+                  ) : (
+                    <a 
+                      href={message.file_url} 
+                      download={message.file_name}
+                      className="text-blue-500 hover:underline"
+                    >
+                      Download {message.file_name}
+                    </a>
+                  )}
                 </div>
-                {message.file_type?.startsWith('image/') ? (
-                  <img 
-                    src={message.file_url} 
-                    alt={message.file_name}
-                    className="max-w-full rounded-md"
-                  />
-                ) : (
-                  <a 
-                    href={message.file_url} 
-                    download={message.file_name}
-                    className="text-blue-500 hover:underline"
-                  >
-                    Download {message.file_name}
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className={cn(
-                message.sender === 'user' 
-                  ? "bg-secondary rounded-lg p-3 text-right" 
-                  : "text-left"
-              )}>
-                {message.content}
-              </div>
-            )}
+              ) : (
+                <div className={cn(
+                  "inline-block",
+                  message.sender === 'user' 
+                    ? "bg-secondary rounded-lg px-4 py-2" 
+                    : ""
+                )}>
+                  {message.content}
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>

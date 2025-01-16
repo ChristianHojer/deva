@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,17 +13,21 @@ const tabs = [
     id: 'ideation',
     label: 'Ideation',
     children: [
-      { id: 'discover', label: 'Discover' },
-      { id: 'iterate', label: 'Iterate' }
+      { id: 'discover', label: 'Discover', path: '/discover' },
+      { id: 'iterate', label: 'Iterate', path: '/iterate' }
     ]
   },
-  { id: 'visualization', label: 'Visualization' },
+  { 
+    id: 'visualization', 
+    label: 'Visualization',
+    path: '/visualization'
+  },
   { 
     id: 'development',
     label: 'Development',
     children: [
-      { id: 'code', label: 'Code' },
-      { id: 'bugs', label: 'Bugs & such' }
+      { id: 'code', label: 'Code', path: '/code' },
+      { id: 'bugs', label: 'Bugs & such', path: '/bugs' }
     ]
   }
 ];
@@ -33,8 +38,12 @@ interface TopNavigationProps {
 }
 
 export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) => {
-  const handleTabClick = (tabId: string) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleTabClick = (tabId: string, path: string) => {
     setActiveTab(tabId);
+    navigate(path);
   };
 
   return (
@@ -51,10 +60,10 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                         {tab.children.map((child, index) => (
                           <button
                             key={child.id}
-                            onClick={() => handleTabClick(child.id)}
+                            onClick={() => handleTabClick(child.id, child.path)}
                             className={cn(
                               "px-4 py-2 text-sm font-medium transition-colors relative",
-                              activeTab === child.id
+                              location.pathname === child.path
                                 ? "bg-primary text-primary-foreground"
                                 : "text-muted-foreground hover:text-primary hover:bg-gray-300",
                               index === 0 && "rounded-l-md",
@@ -68,10 +77,10 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleTabClick(tab.id)}
+                      onClick={() => handleTabClick(tab.id, tab.path)}
                       className={cn(
                         "px-4 py-2 mx-2 rounded-md text-sm font-medium transition-colors",
-                        activeTab === tab.id
+                        location.pathname === tab.path
                           ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:text-primary bg-gray-200 hover:bg-gray-300"
                       )}

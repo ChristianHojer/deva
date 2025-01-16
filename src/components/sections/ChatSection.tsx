@@ -77,7 +77,6 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       return;
     }
 
-    // Convert timestamp strings to Date objects
     const messagesWithDates = data?.map(msg => ({
       ...msg,
       timestamp: new Date(msg.timestamp as string)
@@ -176,8 +175,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
 
   return (
     <div className={cn(
-      "flex flex-col h-full rounded-lg overflow-hidden",
-      variant === "primary" ? "bg-[#F1F1F1]" : "bg-[#F6F6F7]",
+      "flex flex-col h-full bg-white",
       className
     )}>
       <MessageList messages={messages} />

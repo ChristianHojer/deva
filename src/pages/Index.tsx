@@ -43,7 +43,8 @@ const Index = () => {
       case 'bugs':
         return <BugsList />;
       case 'settings':
-        return navigate('/settings');
+        navigate('/settings');
+        return null;
       default:
         return (
           <div className="container max-w-6xl mx-auto py-12">

@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { MessageList } from "../chat/MessageList";
 import { MessageInput } from "../chat/MessageInput";
+import { useParams } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -25,8 +26,11 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const { toast } = useToast();
+  const { projectId } = useParams();
 
   useEffect(() => {
+    if (!projectId) return;
+    
     fetchMessages();
 
     const channel = supabase
@@ -37,7 +41,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `tab_id=eq.${activeTab}`,
+          filter: `project_id=eq.${projectId} AND tab_id=eq.${activeTab}`,
         },
         (payload) => {
           const newMessage = payload.new as Message;
@@ -49,12 +53,15 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [activeTab]);
+  }, [activeTab, projectId]);
 
   const fetchMessages = async () => {
+    if (!projectId) return;
+
     const { data, error } = await supabase
       .from('messages')
       .select('*')
+      .eq('project_id', projectId)
       .eq('tab_id', activeTab)
       .order('timestamp', { ascending: true });
 
@@ -72,11 +79,13 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
 
   const handleSendMessage = async (fileData?: { name: string; url: string; type: string }) => {
     if (!inputMessage.trim() && !fileData) return;
+    if (!projectId) return;
 
     const newMessage = {
       content: inputMessage,
       sender: 'user' as const,
       tab_id: activeTab,
+      project_id: projectId,
       ...(fileData && {
         file_name: fileData.name,
         file_url: fileData.url,
@@ -101,6 +110,8 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!projectId) return;
+    
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -115,7 +126,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
 
     const { data, error } = await supabase.storage
       .from('chat-files')
-      .upload(`${activeTab}/${Date.now()}-${file.name}`, file);
+      .upload(`${projectId}/${activeTab}/${Date.now()}-${file.name}`, file);
 
     if (error) {
       toast({

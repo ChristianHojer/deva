@@ -16,6 +16,7 @@ export type Database = {
           file_type: string | null
           file_url: string | null
           id: string
+          project_id: string | null
           sender: string | null
           tab_id: string | null
           timestamp: string | null
@@ -26,6 +27,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          project_id?: string | null
           sender?: string | null
           tab_id?: string | null
           timestamp?: string | null
@@ -36,6 +38,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          project_id?: string | null
           sender?: string | null
           tab_id?: string | null
           timestamp?: string | null

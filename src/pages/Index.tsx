@@ -1,37 +1,31 @@
 import { MainLayout } from "@/components/MainLayout";
 import { ChatSection } from "@/components/sections/ChatSection";
 import { VisualizationSection } from "@/components/sections/VisualizationSection";
-import { BugsList } from "@/components/sections/BugsList";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('discover');
-  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'discover':
-      case 'iterate':
-        return <ChatSection />;
-      case 'visualization':
-        return <VisualizationSection />;
-      case 'code':
-        return <ChatSection variant="code" />;
-      case 'bugs':
-        return <BugsList />;
-      case 'settings':
-        navigate('/settings');
-        return null;
-      default:
-        return <ChatSection />;
+  useEffect(() => {
+    const initialMessage = sessionStorage.getItem('initialProjectMessage');
+    if (initialMessage) {
+      // Show project naming prompt
+      toast({
+        title: "Name your project",
+        description: "Click on the project name at the top to rename it.",
+        duration: 5000,
+      });
+      // Clear the message from storage
+      sessionStorage.removeItem('initialProjectMessage');
     }
-  };
+  }, []);
 
   return (
     <MainLayout>
-      <div className="h-[calc(100vh-4rem)]">
-        {renderContent()}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-10rem)]">
+        <ChatSection />
+        <VisualizationSection />
       </div>
     </MainLayout>
   );

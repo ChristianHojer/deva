@@ -3,11 +3,29 @@ import { Card } from "@/components/ui/card";
 import { Plus, Code, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [message, setMessage] = useState("");
 
   const handleStartCreating = () => {
+    navigate('/discover');
+  };
+
+  const handleSend = () => {
+    if (!message.trim()) {
+      toast({
+        title: "Please enter a message",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Store the initial message in sessionStorage to use it in the project
+    sessionStorage.setItem('initialProjectMessage', message);
     navigate('/discover');
   };
 
@@ -32,9 +50,17 @@ const Home = () => {
           <Input 
             placeholder="How can I help you today?" 
             className="flex-1 bg-transparent border-0 focus-visible:ring-0 text-gray-200 placeholder:text-gray-500 text-lg"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSend();
+              }
+            }}
           />
           <Button 
             className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={handleSend}
           >
             Send
           </Button>

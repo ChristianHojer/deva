@@ -12,8 +12,6 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     const path = location.pathname.substring(1); // Remove leading slash
     if (path) {
       setActiveTab(path);
-    } else {
-      setActiveTab('dashboard');
     }
   }, [location]);
 
@@ -22,7 +20,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <TopNavigation activeTab={activeTab} />
+          <TopNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
           <main className="flex-1 p-6">
             {children}
           </main>

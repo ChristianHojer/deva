@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import { Settings } from "./pages/Settings";
 import Home from "./pages/Home";
+import { MainLayout } from "./components/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -15,16 +16,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/discover" element={<Index />} />
-          <Route path="/iterate" element={<Index />} />
-          <Route path="/visualization" element={<Index />} />
-          <Route path="/code" element={<Index />} />
-          <Route path="/bugs" element={<Index />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <MainLayout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/discover" element={<Index />} />
+            <Route path="/iterate" element={<Index />} />
+            <Route path="/visualization" element={<Index />} />
+            <Route path="/code" element={<Index />} />
+            <Route path="/bugs" element={<Index />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </MainLayout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

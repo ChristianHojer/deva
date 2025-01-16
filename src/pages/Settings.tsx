@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PlusCircle, Upload, X } from "lucide-react";
+import { PlusCircle, Upload, X, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Website {
   id: string;
@@ -14,6 +15,7 @@ interface Website {
 export const Settings = () => {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [newWebsite, setNewWebsite] = useState(false);
+  const navigate = useNavigate();
 
   const addWebsite = (url: string) => {
     if (url) {
@@ -28,6 +30,15 @@ export const Settings = () => {
 
   return (
     <div className="container max-w-4xl py-8">
+      <Button 
+        variant="ghost" 
+        className="mb-6"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
+      </Button>
+      
       <h1 className="text-2xl font-bold mb-8">User Settings</h1>
       
       <div className="space-y-8">

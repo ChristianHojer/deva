@@ -86,6 +86,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       sender: 'user' as const,
       tab_id: activeTab,
       project_id: projectId,
+      timestamp: new Date().toISOString(),
       ...(fileData && {
         file_name: fileData.name,
         file_url: fileData.url,
@@ -93,11 +94,21 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       }),
     };
 
+    // Optimistically add the message to the UI
+    const optimisticMessage = {
+      ...newMessage,
+      id: crypto.randomUUID(),
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setInputMessage('');
+
     const { error } = await supabase
       .from('messages')
       .insert(newMessage);
 
     if (error) {
+      // Remove the optimistic message if there was an error
+      setMessages((prev) => prev.filter(msg => msg.id !== optimisticMessage.id));
       toast({
         title: "Error sending message",
         description: error.message,
@@ -105,8 +116,6 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       });
       return;
     }
-
-    setInputMessage('');
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

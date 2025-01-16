@@ -1,5 +1,6 @@
 import { MainLayout } from "@/components/MainLayout";
 import { ChatSection } from "@/components/sections/ChatSection";
+import { VisualizationSection } from "@/components/sections/VisualizationSection";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -56,6 +57,8 @@ const Index = () => {
     }
   };
 
+  const shouldShowChat = activeTab === "discover" || activeTab === "iterate";
+
   return (
     <MainLayout>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -90,7 +93,11 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       <div className="h-[calc(100vh-10rem)]">
-        {activeTab !== 'visualization' && <ChatSection activeTab={activeTab} />}
+        {shouldShowChat ? (
+          <ChatSection activeTab={activeTab} />
+        ) : (
+          activeTab === "visualization" && <VisualizationSection />
+        )}
       </div>
     </MainLayout>
   );

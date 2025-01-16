@@ -33,6 +33,10 @@ interface TopNavigationProps {
 }
 
 export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) => {
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
   return (
     <nav className="border-b border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="px-4">
@@ -47,7 +51,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                         {tab.children.map((child, index) => (
                           <button
                             key={child.id}
-                            onClick={() => setActiveTab(child.id)}
+                            onClick={() => handleTabClick(child.id)}
                             className={cn(
                               "px-4 py-2 text-sm font-medium transition-colors relative",
                               activeTab === child.id
@@ -64,7 +68,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                     </div>
                   ) : (
                     <button
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => handleTabClick(tab.id)}
                       className={cn(
                         "px-4 py-2 mx-2 rounded-md text-sm font-medium transition-colors",
                         activeTab === tab.id

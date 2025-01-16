@@ -26,12 +26,15 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
   });
 
   const handleSendMessage = () => {
-    sendMessage(inputMessage);
-    setInputMessage('');
+    if (inputMessage.trim()) {
+      sendMessage(inputMessage);
+      setInputMessage('');
+    }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleSendMessage();
     }
   };

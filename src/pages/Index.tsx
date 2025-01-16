@@ -5,7 +5,7 @@ import { BugsList } from "@/components/sections/BugsList";
 
 const Index = () => {
   const location = useLocation();
-  const currentTab = location.pathname.substring(1);
+  const currentTab = location.pathname.split('/').pop();
 
   const renderContent = () => {
     switch (currentTab) {

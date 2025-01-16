@@ -2,12 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   content: string;
   sender: 'user' | 'assistant';
   timestamp: Date;
+  file?: {
+    name: string;
+    url: string;
+    type: string;
+  };
 }
 
 interface ChatSectionProps {
@@ -17,20 +23,21 @@ interface ChatSectionProps {
 }
 
 export const ChatSection = ({ variant = "primary", className, activeTab }: ChatSectionProps) => {
-  // Use a map to store messages for each tab
   const [messagesByTab, setMessagesByTab] = useState<Record<string, Message[]>>({});
   const [inputMessage, setInputMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  // Get messages for current tab
   const currentMessages = messagesByTab[activeTab] || [];
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = (fileData?: { name: string; url: string; type: string }) => {
+    if (!inputMessage.trim() && !fileData) return;
 
     const newMessage: Message = {
       content: inputMessage,
       sender: 'user',
       timestamp: new Date(),
+      ...(fileData && { file: fileData }),
     };
 
     setMessagesByTab(prev => ({
@@ -40,10 +47,43 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
     setInputMessage('');
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload files smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create a URL for the uploaded file
+    const fileUrl = URL.createObjectURL(file);
+    
+    handleSendMessage({
+      name: file.name,
+      url: fileUrl,
+      type: file.type,
+    });
+
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSendMessage();
     }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -63,13 +103,41 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
                 : "bg-muted"
             )}
           >
-            {message.content}
+            {message.file ? (
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Uploaded: {message.file.name}</div>
+                {message.file.type.startsWith('image/') ? (
+                  <img 
+                    src={message.file.url} 
+                    alt={message.file.name}
+                    className="max-w-full rounded-md"
+                  />
+                ) : (
+                  <a 
+                    href={message.file.url} 
+                    download={message.file.name}
+                    className="text-blue-500 hover:underline"
+                  >
+                    Download {message.file.name}
+                  </a>
+                )}
+              </div>
+            ) : (
+              message.content
+            )}
           </div>
         ))}
       </div>
       <div className="border-t p-4 bg-white">
         <div className="flex gap-2">
-          <Button variant="outline" size="icon">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileUpload}
+            accept="image/*,.pdf,.doc,.docx,.txt"
+          />
+          <Button variant="outline" size="icon" onClick={triggerFileUpload}>
             <Upload className="h-4 w-4" />
           </Button>
           <Input 
@@ -79,7 +147,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
           />
-          <Button onClick={handleSendMessage}>Send</Button>
+          <Button onClick={() => handleSendMessage()}>Send</Button>
         </div>
       </div>
     </div>

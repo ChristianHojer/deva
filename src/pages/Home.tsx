@@ -25,7 +25,17 @@ const Home = () => {
   }, []);
 
   const handleStartCreating = () => {
-    navigate('/discover');
+    // Create a new project and navigate to it
+    const newProject = {
+      id: crypto.randomUUID(),
+      name: 'Untitled Project',
+      createdAt: new Date(),
+    };
+
+    const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+    const updatedProjects = [newProject, ...existingProjects];
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    navigate(`/project/${newProject.id}/discover`);
   };
 
   const handleSend = () => {
@@ -47,7 +57,7 @@ const Home = () => {
     const updatedProjects = [newProject, ...existingProjects];
     localStorage.setItem('projects', JSON.stringify(updatedProjects));
     sessionStorage.setItem('initialProjectMessage', message);
-    navigate('/discover');
+    navigate(`/project/${newProject.id}/discover`);
   };
 
   return (
@@ -101,7 +111,7 @@ const Home = () => {
                 <div 
                   key={project.id}
                   className="group cursor-pointer"
-                  onClick={() => navigate('/discover')}
+                  onClick={() => navigate(`/project/${project.id}/discover`)}
                 >
                   <div className="aspect-video rounded-lg overflow-hidden bg-gray-800 mb-3">
                     <img

@@ -2,18 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface Message {
+  id: string;
   content: string;
   sender: 'user' | 'assistant';
   timestamp: Date;
-  file?: {
-    name: string;
-    url: string;
-    type: string;
-  };
+  file_name?: string;
+  file_url?: string;
+  file_type?: string;
 }
 
 interface ChatSectionProps {
@@ -23,31 +23,66 @@ interface ChatSectionProps {
 }
 
 export const ChatSection = ({ variant = "primary", className, activeTab }: ChatSectionProps) => {
-  const [messagesByTab, setMessagesByTab] = useState<Record<string, Message[]>>({});
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const currentMessages = messagesByTab[activeTab] || [];
+  useEffect(() => {
+    fetchMessages();
+  }, [activeTab]);
 
-  const handleSendMessage = (fileData?: { name: string; url: string; type: string }) => {
-    if (!inputMessage.trim() && !fileData) return;
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('tab_id', activeTab)
+      .order('timestamp', { ascending: true });
 
-    const newMessage: Message = {
-      content: inputMessage,
-      sender: 'user',
-      timestamp: new Date(),
-      ...(fileData && { file: fileData }),
-    };
+    if (error) {
+      toast({
+        title: "Error fetching messages",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
 
-    setMessagesByTab(prev => ({
-      ...prev,
-      [activeTab]: [...(prev[activeTab] || []), newMessage]
-    }));
-    setInputMessage('');
+    setMessages(data || []);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSendMessage = async (fileData?: { name: string; url: string; type: string }) => {
+    if (!inputMessage.trim() && !fileData) return;
+
+    const newMessage = {
+      content: inputMessage,
+      sender: 'user' as const,
+      tab_id: activeTab,
+      ...(fileData && {
+        file_name: fileData.name,
+        file_url: fileData.url,
+        file_type: fileData.type,
+      }),
+    };
+
+    const { error } = await supabase
+      .from('messages')
+      .insert(newMessage);
+
+    if (error) {
+      toast({
+        title: "Error sending message",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setInputMessage('');
+    fetchMessages();
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -61,12 +96,28 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       return;
     }
 
-    // Create a URL for the uploaded file
-    const fileUrl = URL.createObjectURL(file);
+    // Upload file to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('chat-files')
+      .upload(`${activeTab}/${Date.now()}-${file.name}`, file);
+
+    if (error) {
+      toast({
+        title: "Error uploading file",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get public URL for the uploaded file
+    const { data: { publicUrl } } = supabase.storage
+      .from('chat-files')
+      .getPublicUrl(data.path);
     
     handleSendMessage({
       name: file.name,
-      url: fileUrl,
+      url: publicUrl,
       type: file.type,
     });
 
@@ -93,9 +144,9 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       className
     )}>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        {currentMessages.map((message, index) => (
+        {messages.map((message) => (
           <div
-            key={index}
+            key={message.id}
             className={cn(
               "p-4 rounded-lg max-w-[80%]",
               message.sender === 'user' 
@@ -103,22 +154,22 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
                 : "bg-muted"
             )}
           >
-            {message.file ? (
+            {message.file_url ? (
               <div className="space-y-2">
-                <div className="text-sm font-medium">Uploaded: {message.file.name}</div>
-                {message.file.type.startsWith('image/') ? (
+                <div className="text-sm font-medium">Uploaded: {message.file_name}</div>
+                {message.file_type?.startsWith('image/') ? (
                   <img 
-                    src={message.file.url} 
-                    alt={message.file.name}
+                    src={message.file_url} 
+                    alt={message.file_name}
                     className="max-w-full rounded-md"
                   />
                 ) : (
                   <a 
-                    href={message.file.url} 
-                    download={message.file.name}
+                    href={message.file_url} 
+                    download={message.file_name}
                     className="text-blue-500 hover:underline"
                   >
-                    Download {message.file.name}
+                    Download {message.file_name}
                   </a>
                 )}
               </div>

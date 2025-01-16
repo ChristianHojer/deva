@@ -30,6 +30,28 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
 
   useEffect(() => {
     fetchMessages();
+
+    // Set up real-time listener for new messages
+    const channel = supabase
+      .channel('messages-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `tab_id=eq.${activeTab}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          setMessages((currentMessages) => [...currentMessages, newMessage]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [activeTab]);
 
   const fetchMessages = async () => {
@@ -79,7 +101,6 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
     }
 
     setInputMessage('');
-    fetchMessages();
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

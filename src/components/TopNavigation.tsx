@@ -17,8 +17,14 @@ const tabs = [
     ]
   },
   { id: 'visualization', label: 'Visualization' },
-  { id: 'code', label: 'Code' },
-  { id: 'bugs', label: 'Bugs & such' }
+  { 
+    id: 'development',
+    label: 'Development',
+    children: [
+      { id: 'code', label: 'Code' },
+      { id: 'bugs', label: 'Bugs & such' }
+    ]
+  }
 ];
 
 interface TopNavigationProps {
@@ -37,7 +43,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                 <NavigationMenuItem key={tab.id}>
                   {tab.children ? (
                     <div className="flex items-center">
-                      <div className="relative flex rounded-lg overflow-hidden bg-muted/50">
+                      <div className="relative flex rounded-lg overflow-hidden bg-gray-200">
                         {tab.children.map((child, index) => (
                           <button
                             key={child.id}
@@ -46,7 +52,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                               "px-4 py-2 text-sm font-medium transition-colors relative",
                               activeTab === child.id
                                 ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:text-primary hover:bg-muted",
+                                : "text-muted-foreground hover:text-primary hover:bg-gray-300",
                               index === 0 && "rounded-l-md",
                               index === tab.children.length - 1 && "rounded-r-md"
                             )}
@@ -63,7 +69,7 @@ export const TopNavigation = ({ activeTab, setActiveTab }: TopNavigationProps) =
                         "px-4 py-2 mx-2 rounded-md text-sm font-medium transition-colors",
                         activeTab === tab.id
                           ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-primary hover:bg-muted"
+                          : "text-muted-foreground hover:text-primary bg-gray-200 hover:bg-gray-300"
                       )}
                     >
                       {tab.label}

@@ -1,18 +1,32 @@
 import { MainLayout } from "@/components/MainLayout";
+import { ChatSection } from "@/components/sections/ChatSection";
+import { VisualizationSection } from "@/components/sections/VisualizationSection";
+import { BugsList } from "@/components/sections/BugsList";
+import { useState } from "react";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('discover');
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'discover':
+      case 'iterate':
+        return <ChatSection />;
+      case 'visualization':
+        return <VisualizationSection />;
+      case 'code':
+        return <ChatSection variant="code" />;
+      case 'bugs':
+        return <BugsList />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <MainLayout>
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-muted-foreground">
-            Here's an overview of your dashboard
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* Content will go here in future iterations */}
-        </div>
+      <div className="h-[calc(100vh-4rem)]">
+        {renderContent()}
       </div>
     </MainLayout>
   );

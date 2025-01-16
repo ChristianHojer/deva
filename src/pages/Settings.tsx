@@ -3,29 +3,61 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PlusCircle, Upload, X, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PlusCircle, Upload, X, ArrowLeft, Archive } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface Website {
   id: string;
   url: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  createdAt: Date;
+  archived?: boolean;
+}
+
 export const Settings = () => {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [newWebsite, setNewWebsite] = useState(false);
+  const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const addWebsite = (url: string) => {
-    if (url) {
-      setWebsites([...websites, { id: crypto.randomUUID(), url }]);
-      setNewWebsite(false);
+  useEffect(() => {
+    const storedProjects = localStorage.getItem('projects');
+    if (storedProjects) {
+      const projects = JSON.parse(storedProjects);
+      setArchivedProjects(projects.filter((p: Project) => p.archived));
     }
+  }, []);
+
+  const handleUnarchiveProject = (projectId: string) => {
+    const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+    const updatedProjects = storedProjects.map((project: Project) =>
+      project.id === projectId ? { ...project, archived: false } : project
+    );
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    setArchivedProjects(archivedProjects.filter(p => p.id !== projectId));
+    toast({
+      title: "Project unarchived",
+      description: "The project has been moved back to your active projects.",
+    });
   };
 
-  const removeWebsite = (id: string) => {
-    setWebsites(websites.filter(website => website.id !== id));
+  const handleDeleteProject = (projectId: string) => {
+    const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+    const updatedProjects = storedProjects.filter((p: Project) => p.id !== projectId);
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    setArchivedProjects(archivedProjects.filter(p => p.id !== projectId));
+    toast({
+      title: "Project deleted",
+      description: "The project has been permanently deleted.",
+    });
   };
 
   return (
@@ -68,6 +100,45 @@ export const Settings = () => {
           </div>
         </section>
 
+        {/* Archived Projects Section */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Archive className="h-5 w-5" />
+            Archived Projects
+          </h2>
+          <div className="grid gap-4">
+            {archivedProjects.length === 0 ? (
+              <p className="text-muted-foreground">No archived projects</p>
+            ) : (
+              archivedProjects.map((project) => (
+                <Card key={project.id}>
+                  <CardHeader className="p-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{project.name}</CardTitle>
+                      <div className="space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleUnarchiveProject(project.id)}
+                        >
+                          Unarchive
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteProject(project.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))
+            )}
+          </div>
+        </section>
+
         {/* File Upload Sections */}
         <section className="space-y-6">
           <h2 className="text-xl font-semibold">Files & Documents</h2>
@@ -92,60 +163,6 @@ export const Settings = () => {
                 <Button variant="outline">Upload Preferences</Button>
               </div>
             </div>
-          </div>
-
-          {/* Previous Projects */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <Label>Previous Projects</Label>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setNewWebsite(true)}
-              >
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Website
-              </Button>
-            </div>
-            
-            <ScrollArea className="h-[200px] rounded-md border p-4">
-              <div className="space-y-4">
-                {websites.map((website) => (
-                  <div 
-                    key={website.id}
-                    className="flex items-center justify-between p-2 rounded-lg border bg-gray-50"
-                  >
-                    <span className="text-sm">{website.url}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeWebsite(website.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                
-                {newWebsite && (
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Enter website URL"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          addWebsite((e.target as HTMLInputElement).value);
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => setNewWebsite(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
           </div>
         </section>
       </div>

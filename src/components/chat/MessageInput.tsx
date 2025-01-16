@@ -60,7 +60,7 @@ export const MessageInput = ({
           <Textarea 
             ref={textareaRef}
             placeholder="Type your message..." 
-            className="flex-1 bg-white min-h-[40px] max-h-[200px] resize-none py-2 px-3"
+            className="flex-1 bg-white min-h-[40px] max-h-[200px] resize-none py-2 px-3 custom-scrollbar"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => {

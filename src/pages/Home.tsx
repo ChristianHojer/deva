@@ -12,13 +12,7 @@ const Home = () => {
   };
 
   return (
-    <div className="container max-w-6xl mx-auto py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-6">
-          Create without limits. Create your ideas.
-        </h1>
-      </div>
-
+    <div className="container max-w-6xl mx-auto py-8">
       {/* Chat Window */}
       <div className="max-w-4xl mx-auto mb-16">
         <div className="flex flex-col h-[600px] bg-[#0A0A0A] rounded-xl shadow-xl border border-[#1E1E1E]">

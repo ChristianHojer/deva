@@ -44,7 +44,10 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
           filter: `project_id=eq.${projectId} AND tab_id=eq.${activeTab}`,
         },
         (payload) => {
-          const newMessage = payload.new as Message;
+          const newMessage = {
+            ...payload.new,
+            timestamp: new Date(payload.new.timestamp),
+          } as Message;
           setMessages((currentMessages) => [...currentMessages, newMessage]);
         }
       )
@@ -74,19 +77,26 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       return;
     }
 
-    setMessages(data || []);
+    // Convert timestamp strings to Date objects
+    const messagesWithDates = data?.map(msg => ({
+      ...msg,
+      timestamp: new Date(msg.timestamp as string)
+    })) || [];
+
+    setMessages(messagesWithDates);
   };
 
   const handleSendMessage = async (fileData?: { name: string; url: string; type: string }) => {
     if (!inputMessage.trim() && !fileData) return;
     if (!projectId) return;
 
+    const timestamp = new Date();
     const newMessage = {
       content: inputMessage,
       sender: 'user' as const,
       tab_id: activeTab,
       project_id: projectId,
-      timestamp: new Date().toISOString(),
+      timestamp: timestamp.toISOString(),
       ...(fileData && {
         file_name: fileData.name,
         file_url: fileData.url,
@@ -95,10 +105,13 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
     };
 
     // Optimistically add the message to the UI
-    const optimisticMessage = {
+    const optimisticMessage: Message = {
       ...newMessage,
       id: crypto.randomUUID(),
+      timestamp: timestamp, // Use the Date object for the UI
+      sender: 'user',
     };
+    
     setMessages((prev) => [...prev, optimisticMessage]);
     setInputMessage('');
 

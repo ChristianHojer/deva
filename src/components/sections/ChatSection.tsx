@@ -104,11 +104,10 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       }),
     };
 
-    // Optimistically add the message to the UI
     const optimisticMessage: Message = {
       ...newMessage,
       id: crypto.randomUUID(),
-      timestamp: timestamp, // Use the Date object for the UI
+      timestamp: timestamp,
       sender: 'user',
     };
     
@@ -120,7 +119,6 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
       .insert(newMessage);
 
     if (error) {
-      // Remove the optimistic message if there was an error
       setMessages((prev) => prev.filter(msg => msg.id !== optimisticMessage.id));
       toast({
         title: "Error sending message",
@@ -178,7 +176,7 @@ export const ChatSection = ({ variant = "primary", className, activeTab }: ChatS
 
   return (
     <div className={cn(
-      "flex flex-col h-full",
+      "flex flex-col h-full rounded-lg overflow-hidden",
       variant === "primary" ? "bg-[#F1F1F1]" : "bg-[#F6F6F7]",
       className
     )}>

@@ -25,26 +25,38 @@ export const MessageInput = ({
   };
 
   return (
-    <div className="border-t p-4 bg-white">
-      <div className="flex gap-2">
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={handleFileUpload}
-          accept="image/*,.pdf,.doc,.docx,.txt"
-        />
-        <Button variant="outline" size="icon" onClick={triggerFileUpload}>
-          <Upload className="h-4 w-4" />
-        </Button>
-        <Input 
-          placeholder="Type your message..." 
-          className="flex-1"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
-        <Button onClick={() => handleSendMessage()}>Send</Button>
+    <div className="border-t bg-[#F1F1F1] p-4 rounded-b-lg">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex gap-2 items-center">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileUpload}
+            accept="image/*,.pdf,.doc,.docx,.txt"
+          />
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={triggerFileUpload}
+            className="shrink-0"
+          >
+            <Upload className="h-4 w-4" />
+          </Button>
+          <Input 
+            placeholder="Type your message..." 
+            className="flex-1 bg-white"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+          <Button 
+            onClick={() => handleSendMessage()}
+            className="shrink-0"
+          >
+            Send
+          </Button>
+        </div>
       </div>
     </div>
   );

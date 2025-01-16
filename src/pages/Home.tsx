@@ -13,32 +13,31 @@ const Home = () => {
 
   return (
     <div className="container max-w-6xl mx-auto py-8">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-6">
+          Create without limits. Create your ideas.
+        </h1>
+      </div>
+
       {/* Chat Window */}
       <div className="max-w-4xl mx-auto mb-16">
-        <div className="flex flex-col h-[600px] bg-[#0A0A0A] rounded-xl shadow-xl border border-[#1E1E1E]">
-          <div className="flex-1 p-6 overflow-y-auto">
-            {/* Chat messages will go here */}
-          </div>
-          <div className="p-4 border-t border-[#1E1E1E]">
-            <div className="flex gap-3 items-center">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="text-gray-400 hover:text-gray-300 hover:bg-[#1E1E1E]"
-              >
-                <Upload className="h-5 w-5" />
-              </Button>
-              <Input 
-                placeholder="How can I help you today?" 
-                className="flex-1 bg-transparent border-0 focus-visible:ring-0 text-gray-200 placeholder:text-gray-500 text-lg"
-              />
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Send
-              </Button>
-            </div>
-          </div>
+        <div className="flex gap-3 items-center bg-[#0A0A0A] rounded-xl shadow-xl border border-[#1E1E1E] p-4">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="text-gray-400 hover:text-gray-300 hover:bg-[#1E1E1E]"
+          >
+            <Upload className="h-5 w-5" />
+          </Button>
+          <Input 
+            placeholder="How can I help you today?" 
+            className="flex-1 bg-transparent border-0 focus-visible:ring-0 text-gray-200 placeholder:text-gray-500 text-lg"
+          />
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Send
+          </Button>
         </div>
       </div>
 

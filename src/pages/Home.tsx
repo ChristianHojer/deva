@@ -2,13 +2,27 @@ import { Button } from "@/components/ui/button";
 import { Plus, Code, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+
+type Project = {
+  id: string;
+  name: string;
+  createdAt: Date;
+};
 
 const Home = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [message, setMessage] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const storedProjects = localStorage.getItem('projects');
+    if (storedProjects) {
+      setProjects(JSON.parse(storedProjects));
+    }
+  }, []);
 
   const handleStartCreating = () => {
     navigate('/discover');
@@ -23,23 +37,15 @@ const Home = () => {
       return;
     }
 
-    // Create a new project
     const newProject = {
       id: crypto.randomUUID(),
       name: 'Untitled Project',
       createdAt: new Date(),
     };
 
-    // Get existing projects or initialize empty array
     const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-    
-    // Add new project to the beginning of the array
     const updatedProjects = [newProject, ...existingProjects];
-    
-    // Save to localStorage
     localStorage.setItem('projects', JSON.stringify(updatedProjects));
-
-    // Store the initial message in sessionStorage to use it in the project
     sessionStorage.setItem('initialProjectMessage', message);
     navigate('/discover');
   };
@@ -86,6 +92,32 @@ const Home = () => {
             <Upload className="mr-2 h-4 w-4" /> Upload files
           </Button>
         </div>
+
+        {projects.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-semibold mb-8 text-center">Your Projects</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {projects.map((project) => (
+                <div 
+                  key={project.id}
+                  className="group cursor-pointer"
+                  onClick={() => navigate('/discover')}
+                >
+                  <div className="aspect-video rounded-lg overflow-hidden bg-gray-800 mb-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"
+                      alt={project.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-200 group-hover:text-blue-400 transition-colors">
+                    {project.name}
+                  </h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

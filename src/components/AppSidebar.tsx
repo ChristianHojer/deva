@@ -32,6 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 type Project = {
   id: string;
   name: string;
+  description?: string;
   createdAt: Date;
   archived?: boolean;
 };

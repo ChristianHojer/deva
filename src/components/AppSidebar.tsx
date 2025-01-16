@@ -223,7 +223,7 @@ export function AppSidebar({ selectedProjectId }: AppSidebarProps) {
                         <SidebarMenuButton
                           asChild
                           className={`hover-scale ${
-                            selectedProjectId === project.id ? "bg-gray-800" : ""
+                            selectedProjectId === project.id ? "bg-gray-800 text-white" : ""
                           }`}
                           onClick={() => handleProjectClick(project.id)}
                         >

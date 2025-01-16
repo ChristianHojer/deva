@@ -12,7 +12,7 @@ export const ChatSection = ({ variant = "primary", className }: ChatSectionProps
   return (
     <div className={cn(
       "flex flex-col h-full",
-      variant === "primary" ? "bg-purple-50" : "bg-gray-50",
+      variant === "primary" ? "bg-[#F1F1F1]" : "bg-[#F6F6F7]",
       className
     )}>
       <div className="flex-1 p-4 space-y-4">

@@ -20,18 +20,29 @@ const Home = () => {
       </div>
 
       {/* Chat Window */}
-      <div className="max-w-2xl mx-auto mb-16">
-        <div className="flex flex-col h-[400px] bg-white rounded-lg shadow-md">
-          <div className="flex-1 p-4 bg-[#F1F1F1] rounded-t-lg overflow-y-auto">
+      <div className="max-w-4xl mx-auto mb-16">
+        <div className="flex flex-col h-[600px] bg-[#0A0A0A] rounded-xl shadow-xl border border-[#1E1E1E]">
+          <div className="flex-1 p-6 overflow-y-auto">
             {/* Chat messages will go here */}
           </div>
-          <div className="border-t p-4 bg-white">
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon">
-                <Upload className="h-4 w-4" />
+          <div className="p-4 border-t border-[#1E1E1E]">
+            <div className="flex gap-3 items-center">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="text-gray-400 hover:text-gray-300 hover:bg-[#1E1E1E]"
+              >
+                <Upload className="h-5 w-5" />
               </Button>
-              <Input placeholder="Type your message..." className="flex-1" />
-              <Button>Send</Button>
+              <Input 
+                placeholder="How can I help you today?" 
+                className="flex-1 bg-transparent border-0 focus-visible:ring-0 text-gray-200 placeholder:text-gray-500 text-lg"
+              />
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Send
+              </Button>
             </div>
           </div>
         </div>

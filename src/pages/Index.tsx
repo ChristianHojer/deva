@@ -19,6 +19,7 @@ const Index = () => {
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const [activeTab, setActiveTab] = useState("discover");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -98,7 +99,7 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       <div className="h-[calc(100vh-10rem)]">
-        <ChatSection />
+        <ChatSection activeTab={activeTab} />
       </div>
     </MainLayout>
   );

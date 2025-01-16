@@ -13,11 +13,16 @@ interface Message {
 interface ChatSectionProps {
   variant?: "primary" | "code";
   className?: string;
+  activeTab: string;
 }
 
-export const ChatSection = ({ variant = "primary", className }: ChatSectionProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+export const ChatSection = ({ variant = "primary", className, activeTab }: ChatSectionProps) => {
+  // Use a map to store messages for each tab
+  const [messagesByTab, setMessagesByTab] = useState<Record<string, Message[]>>({});
   const [inputMessage, setInputMessage] = useState('');
+
+  // Get messages for current tab
+  const currentMessages = messagesByTab[activeTab] || [];
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -28,7 +33,10 @@ export const ChatSection = ({ variant = "primary", className }: ChatSectionProps
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, newMessage]);
+    setMessagesByTab(prev => ({
+      ...prev,
+      [activeTab]: [...(prev[activeTab] || []), newMessage]
+    }));
     setInputMessage('');
   };
 
@@ -45,7 +53,7 @@ export const ChatSection = ({ variant = "primary", className }: ChatSectionProps
       className
     )}>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        {messages.map((message, index) => (
+        {currentMessages.map((message, index) => (
           <div
             key={index}
             className={cn(

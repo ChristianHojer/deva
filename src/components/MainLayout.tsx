@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from './AppSidebar';
 import { TopNavigation } from './TopNavigation';
@@ -7,9 +7,10 @@ import { TopNavigation } from './TopNavigation';
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const [activeTab, setActiveTab] = useState('discover');
   const location = useLocation();
+  const { projectId } = useParams();
 
   useEffect(() => {
-    const path = location.pathname.substring(1);
+    const path = location.pathname.split('/').pop();
     if (path) {
       setActiveTab(path);
     }
@@ -18,9 +19,13 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <AppSidebar />
+        <AppSidebar selectedProjectId={projectId} />
         <div className="flex-1 flex flex-col">
-          <TopNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TopNavigation 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab}
+            projectId={projectId}
+          />
           <main className="flex-1 p-6">
             {children}
           </main>

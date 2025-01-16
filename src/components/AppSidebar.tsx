@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -50,14 +51,18 @@ const menuItems = [
   },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  selectedProjectId?: string;
+}
+
+export function AppSidebar({ selectedProjectId }: AppSidebarProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedProjects = localStorage.getItem('projects');
@@ -76,7 +81,6 @@ export function AppSidebar() {
     }
 
     if (editingProject) {
-      // Handle project rename
       const updatedProjects = projects.map(project => 
         project.id === editingProject.id 
           ? { ...project, name: projectName }
@@ -86,7 +90,6 @@ export function AppSidebar() {
       setProjects(updatedProjects);
       setEditingProject(null);
     } else {
-      // Handle new project creation
       const newProject = {
         id: crypto.randomUUID(),
         name: projectName,
@@ -111,7 +114,7 @@ export function AppSidebar() {
   };
 
   const handleProjectClick = (projectId: string) => {
-    setSelectedProjectId(projectId);
+    navigate(`/project/${projectId}/discover`);
   };
 
   const handleRenameProject = (project: Project) => {
@@ -141,6 +144,9 @@ export function AppSidebar() {
       title: "Project deleted",
       description: "The project has been permanently deleted.",
     });
+    if (projectId === selectedProjectId) {
+      navigate('/');
+    }
   };
 
   const activeProjects = projects.filter(project => !project.archived);
@@ -221,9 +227,9 @@ export function AppSidebar() {
                           }`}
                           onClick={() => handleProjectClick(project.id)}
                         >
-                          <a href={`/discover`} className="flex items-center gap-2">
+                          <button className="flex w-full items-center gap-2">
                             <span>{project.name || 'Untitled Project'}</span>
-                          </a>
+                          </button>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </ContextMenuTrigger>

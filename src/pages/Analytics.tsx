@@ -13,7 +13,7 @@ import { RealtimeTokenChart } from "@/components/analytics/RealtimeTokenChart";
 import { ProjectTokenChart } from "@/components/analytics/ProjectTokenChart";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
-import { addDays, startOfMonth, endOfMonth, startOfYear, subDays } from "date-fns";
+import { startOfMonth, endOfMonth } from "date-fns";
 import {
   Select,
   SelectContent,

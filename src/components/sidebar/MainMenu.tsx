@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { Link, type LinkProps } from "react-router-dom";
 import { MenuItemType } from "./types";
 import { cn } from "@/lib/utils";
 

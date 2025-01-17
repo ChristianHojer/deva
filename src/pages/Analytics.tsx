@@ -4,15 +4,54 @@ import { TokenUsageStats } from "@/components/dashboard/TokenUsageStats";
 import { useTokenUsage } from "@/hooks/useTokenUsage";
 import { supabase } from "@/lib/supabase";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, XAxis, YAxis, BarChart, Bar, Legend } from "recharts";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
+import { useProjects } from "@/hooks/useProjects";
 
 type TokenUsageRow = Database['public']['Tables']['token_usage']['Row'];
 
 export function Analytics() {
   const { monthlyUsage, yearlyUsage, isLoading } = useTokenUsage();
+  const { projects } = useProjects();
   const [realtimeData, setRealtimeData] = useState<Array<{ timestamp: string; tokens: number }>>([]);
+  const [projectUsage, setProjectUsage] = useState<Array<{ name: string; tokens: number }>>([]);
+
+  useEffect(() => {
+    // Fetch project-specific token usage
+    const fetchProjectUsage = async () => {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const { data, error } = await supabase
+        .from('token_usage')
+        .select('project_id, tokens_used')
+        .gte('created_at', startOfMonth.toISOString());
+
+      if (error) {
+        console.error('Error fetching project usage:', error);
+        return;
+      }
+
+      // Aggregate tokens by project
+      const projectTokens = data.reduce((acc: Record<string, number>, curr) => {
+        if (curr.project_id) {
+          acc[curr.project_id] = (acc[curr.project_id] || 0) + curr.tokens_used;
+        }
+        return acc;
+      }, {});
+
+      // Map to project names
+      const projectUsageData = projects?.map(project => ({
+        name: project.name,
+        tokens: projectTokens[project.id] || 0
+      })) || [];
+
+      setProjectUsage(projectUsageData);
+    };
+
+    fetchProjectUsage();
+  }, [projects]);
 
   useEffect(() => {
     const channel = supabase
@@ -96,6 +135,44 @@ export function Analytics() {
                   fill="hsl(var(--primary)/.2)"
                 />
               </AreaChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Token Usage by Project</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer
+              className="h-[300px]"
+              config={{
+                tokens: {
+                  theme: {
+                    light: "hsl(var(--primary))",
+                    dark: "hsl(var(--primary))",
+                  },
+                },
+              }}
+            >
+              <BarChart data={projectUsage}>
+                <XAxis 
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  width={40}
+                />
+                <ChartTooltip />
+                <Bar
+                  dataKey="tokens"
+                  fill="hsl(var(--primary))"
+                />
+                <Legend />
+              </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>

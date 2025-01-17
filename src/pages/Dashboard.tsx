@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, ChartBar, Edit, Trash } from "lucide-react";
+import { Plus, Upload, ChartBar, Edit, Trash, Loader2 } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { formatDistanceToNow } from "date-fns";
 import { ProjectDialog } from "@/components/sidebar/ProjectDialog";
@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { FileUploadDialog } from "@/components/dashboard/FileUploadDialog";
 import { useTokenUsage } from "@/hooks/useTokenUsage";
+import { supabase } from "@/lib/supabase";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -24,6 +25,48 @@ export function Dashboard() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+
+  // Set up real-time subscriptions
+  useEffect(() => {
+    // Subscribe to projects changes
+    const projectsChannel = supabase
+      .channel('projects-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects'
+        },
+        (payload) => {
+          console.log('Projects change received:', payload);
+          // The useProjects hook will handle the refetch
+        }
+      )
+      .subscribe();
+
+    // Subscribe to token usage changes
+    const tokenUsageChannel = supabase
+      .channel('token-usage-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'token_usage'
+        },
+        (payload) => {
+          console.log('Token usage change received:', payload);
+          // The useTokenUsage hook will handle the refetch
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(projectsChannel);
+      supabase.removeChannel(tokenUsageChannel);
+    };
+  }, []);
 
   const handleCreateProject = async () => {
     if (!projectName.trim()) return;
@@ -131,7 +174,9 @@ export function Dashboard() {
         <CardContent>
           <div className="grid gap-4">
             {isLoading ? (
-              <p>Loading projects...</p>
+              <div className="flex items-center justify-center p-4">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
             ) : projects?.length === 0 ? (
               <p className="text-muted-foreground">No active projects found.</p>
             ) : (
@@ -176,7 +221,9 @@ export function Dashboard() {
         </CardHeader>
         <CardContent>
           {isLoadingTokens ? (
-            <p>Loading token usage...</p>
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
           ) : (
             <div className="space-y-4">
               <div>
@@ -208,7 +255,7 @@ export function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Project Dialog */}
+      {/* Dialogs */}
       <ProjectDialog
         open={projectDialogOpen}
         setOpen={setProjectDialogOpen}
@@ -220,14 +267,12 @@ export function Dashboard() {
         handleCreateProject={selectedProject ? handleEditProject : handleCreateProject}
       />
 
-      {/* File Upload Dialog */}
       <FileUploadDialog
         open={fileDialogOpen}
         setOpen={setFileDialogOpen}
         projects={projects || []}
       />
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

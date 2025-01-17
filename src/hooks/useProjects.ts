@@ -10,6 +10,7 @@ export function useProjects() {
   const { data: projects, isLoading, error } = useQuery({
     queryKey: ['projects'],
     queryFn: projectsService.getProjects,
+    refetchInterval: 5000, // Refetch every 5 seconds as a fallback
   });
 
   const createProject = useMutation({

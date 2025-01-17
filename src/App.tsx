@@ -3,7 +3,7 @@ import { MainLayout } from "./components/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { Analytics } from "./pages/Analytics";
 
-export function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
@@ -14,4 +14,6 @@ export function App() {
       </Routes>
     </Router>
   );
-}
+};
+
+export default App;

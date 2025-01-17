@@ -25,8 +25,6 @@ interface UpdateProfileData {
     email: boolean;
     push: boolean;
   };
-  role?: 'free' | 'pro' | 'team' | 'enterprise' | 'superadmin';
-  is_active?: boolean;
 }
 
 export function useProfile() {
@@ -49,16 +47,16 @@ export function useProfile() {
 
       const { data, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select()
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error('Profile fetch error:', profileError);
         throw profileError;
       }
 
-      return data as Profile;
+      return data as Profile | null;
     },
     retry: false
   });

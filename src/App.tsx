@@ -22,10 +22,16 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<Index />} />
+            <Route index element={<Home />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="project/:projectId/*" element={<Home />} />
+            <Route path="project/:projectId" element={<MainLayout />}>
+              <Route path="discover" element={<Index />} />
+              <Route path="iterate" element={<Index />} />
+              <Route path="visualization" element={<Index />} />
+              <Route path="code" element={<Index />} />
+              <Route path="bugs" element={<Index />} />
+            </Route>
           </Route>
         </Routes>
       </Router>

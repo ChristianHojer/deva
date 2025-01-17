@@ -34,6 +34,7 @@ export function Auth() {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
+        setIsLoading(true); // Set loading while we check the profile
         try {
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
@@ -44,12 +45,14 @@ export function Auth() {
           if (profileError) {
             console.error('Error checking profile:', profileError);
             setError('Error checking profile status. Please try again.');
+            setIsLoading(false);
             return;
           }
 
           if (!profile) {
             console.error('Profile not found after signup');
             setError('Error creating profile. Please contact support.');
+            setIsLoading(false);
             return;
           }
 
@@ -61,7 +64,10 @@ export function Auth() {
           } else {
             setError(err instanceof AuthError ? err.message : 'An unexpected error occurred');
           }
+          setIsLoading(false);
         }
+      } else if (event === 'SIGNED_OUT') {
+        setIsLoading(false);
       }
     });
 

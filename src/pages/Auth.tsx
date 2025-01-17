@@ -14,33 +14,29 @@ export function Auth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        console.error('Session check error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to check session');
-      } finally {
-        setIsLoading(false);
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Session check error:', error);
+        setError(error.message);
+      } else if (session) {
+        navigate('/dashboard');
       }
-    };
+      setIsLoading(false);
+    });
 
-    checkSession();
-
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
         navigate('/dashboard');
-      } else if (event === 'SIGNED_OUT') {
-        setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   if (isLoading) {

@@ -41,7 +41,11 @@ export function Auth() {
           if (err instanceof AuthApiError) {
             switch (err.status) {
               case 400:
-                setError('Invalid email or password. Please check your credentials and try again.');
+                if (err.message.includes('Invalid login credentials')) {
+                  setError('Account not found. Please sign up first or check your credentials.');
+                } else {
+                  setError('Invalid email or password. Please check your credentials and try again.');
+                }
                 break;
               case 422:
                 setError('Invalid email format. Please enter a valid email address.');

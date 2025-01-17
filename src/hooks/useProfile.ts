@@ -36,28 +36,31 @@ export function useProfile() {
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      console.log('Fetching profile...');
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('User fetch error:', userError);
+        throw userError;
+      }
+      
       if (!user) {
         console.log('No user found');
-        throw new Error('No user found');
+        return null;
       }
-      console.log('User ID:', user.id);
 
-      const { data, error } = await supabase
+      const { data, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error) {
-        console.error('Profile fetch error:', error);
-        throw error;
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
       }
-      
-      console.log('Profile data:', data);
+
       return data as Profile;
     },
+    retry: false
   });
 
   const updateProfile = useMutation({

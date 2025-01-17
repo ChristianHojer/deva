@@ -6,8 +6,7 @@ const tabGroups = [
     id: 'creation',
     tabs: [
       { id: 'discover', label: 'Discover', path: '/discover' },
-      { id: 'iterate', label: 'Iterate', path: '/iterate' },
-      { id: 'code', label: 'Code', path: '/code' }
+      { id: 'iterate', label: 'Iterate', path: '/iterate' }
     ]
   },
   {
@@ -17,8 +16,9 @@ const tabGroups = [
     ]
   },
   {
-    id: 'bugs',
+    id: 'development',
     tabs: [
+      { id: 'code', label: 'Code', path: '/code' },
       { id: 'bugs', label: 'Bugs', path: '/bugs' }
     ]
   }

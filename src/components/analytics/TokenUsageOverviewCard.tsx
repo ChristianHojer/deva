@@ -4,9 +4,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+interface TokenUsageData {
+  used: number;
+  limit: number;
+}
+
 interface TokenUsageOverviewCardProps {
-  monthlyUsage: number;
-  yearlyUsage: number;
+  monthlyUsage: TokenUsageData;
+  yearlyUsage: TokenUsageData;
   isLoading: boolean;
 }
 

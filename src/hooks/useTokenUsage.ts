@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
+interface TokenUsageData {
+  used: number;
+  limit: number;
+}
+
 export function useTokenUsage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['token-usage'],

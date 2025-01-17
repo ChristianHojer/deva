@@ -1,112 +1,101 @@
 import { supabase } from "@/lib/supabase";
-import { DateRange } from "react-day-picker";
-
-interface AnalyticsParams {
-  startDate: Date;
-  endDate: Date;
-  projectIds?: string[];
-}
-
-interface ExportParams extends AnalyticsParams {
-  format: 'pdf' | 'csv';
-}
 
 export const analyticsService = {
-  async getTokenUsage({ startDate, endDate, projectIds }: AnalyticsParams) {
-    let query = supabase
+  async getTokenUsage({ startDate, endDate, projectIds }: { startDate: Date; endDate: Date; projectIds: string[] }) {
+    const query = supabase
       .from('token_usage')
-      .select('tokens_used, created_at')
+      .select('*')
       .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString())
-      .order('created_at', { ascending: true });
+      .lte('created_at', endDate.toISOString());
 
-    if (projectIds && projectIds.length > 0) {
-      query = query.in('project_id', projectIds);
+    if (projectIds.length > 0) {
+      query.in('project_id', projectIds);
     }
 
     const { data, error } = await query;
-
     if (error) throw error;
 
-    // Process data for timeline visualization
-    const timeline = data.map(item => ({
-      date: new Date(item.created_at).toLocaleDateString(),
-      tokens: item.tokens_used
-    }));
+    // Process the data to create a timeline
+    const timeline = data.reduce((acc: any[], entry: any) => {
+      const date = new Date(entry.created_at).toLocaleDateString();
+      const existingEntry = acc.find(item => item.date === date);
+      
+      if (existingEntry) {
+        existingEntry.tokens += entry.tokens_used;
+      } else {
+        acc.push({ date, tokens: entry.tokens_used });
+      }
+      
+      return acc;
+    }, []);
 
     return { timeline };
   },
 
-  async getProjectStats({ startDate, endDate, projectIds }: AnalyticsParams) {
-    let messagesQuery = supabase
+  async getProjectStats({ startDate, endDate, projectIds }: { startDate: Date; endDate: Date; projectIds: string[] }) {
+    const messagesQuery = supabase
       .from('messages')
       .select('project_id')
-      .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString());
+      .gte('timestamp', startDate.toISOString())
+      .lte('timestamp', endDate.toISOString());
 
-    let filesQuery = supabase
+    const filesQuery = supabase
       .from('file_uploads')
       .select('project_id')
       .gte('uploaded_at', startDate.toISOString())
       .lte('uploaded_at', endDate.toISOString());
 
-    let projectsQuery = supabase
-      .from('projects')
-      .select('id, name');
-
-    if (projectIds && projectIds.length > 0) {
-      messagesQuery = messagesQuery.in('project_id', projectIds);
-      filesQuery = filesQuery.in('project_id', projectIds);
-      projectsQuery = projectsQuery.in('id', projectIds);
+    if (projectIds.length > 0) {
+      messagesQuery.in('project_id', projectIds);
+      filesQuery.in('project_id', projectIds);
     }
 
-    const [
-      { data: messages, error: messagesError },
-      { data: files, error: filesError },
-      { data: projects, error: projectsError }
-    ] = await Promise.all([
+    const [messagesResult, filesResult, projectsResult] = await Promise.all([
       messagesQuery,
       filesQuery,
-      projectsQuery
+      supabase.from('projects').select('id, name')
     ]);
 
-    if (messagesError || filesError || projectsError) 
-      throw messagesError || filesError || projectsError;
+    if (messagesResult.error) throw messagesResult.error;
+    if (filesResult.error) throw filesResult.error;
+    if (projectsResult.error) throw projectsResult.error;
 
+    const projects = projectsResult.data || [];
     const activity = projects.map(project => ({
       name: project.name,
-      messages: messages.filter(m => m.project_id === project.id).length,
-      files: files.filter(f => f.project_id === project.id).length
+      messages: messagesResult.data?.filter(m => m.project_id === project.id).length || 0,
+      files: filesResult.data?.filter(f => f.project_id === project.id).length || 0,
     }));
 
     return { activity };
   },
 
-  async getErrorStats({ startDate, endDate, projectIds }: AnalyticsParams) {
-    const { data, error } = await supabase
+  async getErrorStats({ startDate, endDate, projectIds }: { startDate: Date; endDate: Date; projectIds: string[] }) {
+    const { data: errorCodes, error } = await supabase
       .from('error_codes')
       .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5);
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
 
     if (error) throw error;
 
-    const common_errors = data.map(error => ({
+    const common_errors = errorCodes?.map(error => ({
       type: error.code,
       description: error.message,
-      solution: error.solution
-    }));
+      solution: error.solution || 'No solution provided'
+    })) || [];
 
     return { common_errors };
   },
 
-  async exportAnalytics({ format, startDate, endDate, projectIds }: ExportParams) {
-    // This is a placeholder for the export functionality
-    // You would implement the actual export logic here
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true });
-      }, 1000);
-    });
+  async exportAnalytics({ format, startDate, endDate, projectIds }: { 
+    format: 'pdf' | 'csv';
+    startDate: Date;
+    endDate: Date;
+    projectIds: string[];
+  }) {
+    // Implement export logic here
+    // This is a placeholder that would need to be implemented based on your export requirements
+    console.log('Exporting analytics:', { format, startDate, endDate, projectIds });
   }
 };

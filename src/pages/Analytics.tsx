@@ -13,6 +13,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { useProjects } from "@/hooks/useProjects";
 import { DateRange } from "react-day-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { exportToCSV, exportToPDF } from "@/utils/exportUtils";
 
 export function Analytics() {
   const { toast } = useToast();
@@ -62,18 +63,29 @@ export function Analytics() {
   const handleExport = async (format: 'pdf' | 'csv') => {
     try {
       setIsExporting(true);
-      await analyticsService.exportAnalytics({
-        format,
-        startDate: dateRange.from,
-        endDate: dateRange.to,
-        projectIds: selectedProjects
-      });
       
+      if (!tokenUsage?.timeline || !projectStats?.activity || !errorStats?.common_errors) {
+        throw new Error('Analytics data is not fully loaded');
+      }
+
+      const exportData = {
+        tokenUsage: tokenUsage.timeline,
+        projectStats: projectStats.activity,
+        errorStats: errorStats.common_errors,
+      };
+
+      if (format === 'csv') {
+        exportToCSV(exportData);
+      } else {
+        exportToPDF(exportData);
+      }
+
       toast({
         title: "Export Successful",
         description: `Analytics data exported as ${format.toUpperCase()}`,
       });
     } catch (error) {
+      console.error('Export error:', error);
       toast({
         title: "Export Failed",
         description: "Failed to export analytics data. Please try again.",

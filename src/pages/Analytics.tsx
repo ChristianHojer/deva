@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TokenUsageStats } from "@/components/dashboard/TokenUsageStats";
 import { useTokenUsage } from "@/hooks/useTokenUsage";
 import { supabase } from "@/lib/supabase";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
@@ -9,21 +7,13 @@ import { useProjects } from "@/hooks/useProjects";
 import { exportToCSV, exportToPDF } from "@/utils/exportUtils";
 import { useToast } from "@/hooks/use-toast";
 import { AnalyticsHeader } from "@/components/analytics/AnalyticsHeader";
-import { RealtimeTokenChart } from "@/components/analytics/RealtimeTokenChart";
-import { ProjectTokenChart } from "@/components/analytics/ProjectTokenChart";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
 import { startOfMonth, endOfMonth } from "date-fns";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AnalyticsFilters } from "@/components/analytics/AnalyticsFilters";
+import { TokenUsageOverviewCard } from "@/components/analytics/TokenUsageOverviewCard";
+import { RealtimeTokenUsageCard } from "@/components/analytics/RealtimeTokenUsageCard";
+import { ProjectTokenUsageCard } from "@/components/analytics/ProjectTokenUsageCard";
 
 type TokenUsageRow = Database['public']['Tables']['token_usage']['Row'];
 type ActivityType = 'all' | 'chat' | 'file' | 'code';
@@ -164,113 +154,33 @@ export function Analytics() {
     <div className="container mx-auto p-6 space-y-6">
       <AnalyticsHeader onExport={handleExport} />
       
-      <div className="flex flex-col md:flex-row gap-4 items-start">
-        <div className="w-full md:w-auto">
-          <DatePickerWithRange
-            date={date}
-            onDateChange={setDate}
-            className="w-full md:w-[300px]"
-          />
-        </div>
-        
-        <Select value={selectedProject} onValueChange={setSelectedProject}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Select Project" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Projects</SelectItem>
-            {projects?.map(project => (
-              <SelectItem key={project.id} value={project.id}>
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={activityType} onValueChange={(value: ActivityType) => setActivityType(value)}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Activity Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Activities</SelectItem>
-            <SelectItem value="chat">Chat Messages</SelectItem>
-            <SelectItem value="file">File Uploads</SelectItem>
-            <SelectItem value="code">Code Changes</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <AnalyticsFilters
+        date={date}
+        onDateChange={setDate}
+        selectedProject={selectedProject}
+        onProjectChange={setSelectedProject}
+        activityType={activityType}
+        onActivityTypeChange={setActivityType}
+        projects={projects}
+      />
 
       <TooltipProvider>
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Token Usage Overview</CardTitle>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Shows your monthly and yearly token usage limits and consumption</p>
-                </TooltipContent>
-              </Tooltip>
-            </CardHeader>
-            <CardContent>
-              {isStatsLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-[250px]" />
-                  <Skeleton className="h-4 w-[200px]" />
-                </div>
-              ) : (
-                <TokenUsageStats
-                  monthlyUsage={monthlyUsage}
-                  yearlyUsage={yearlyUsage}
-                  isLoading={isStatsLoading}
-                />
-              )}
-            </CardContent>
-          </Card>
+          <TokenUsageOverviewCard
+            monthlyUsage={monthlyUsage}
+            yearlyUsage={yearlyUsage}
+            isLoading={isStatsLoading}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Real-time Token Usage</CardTitle>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Live updates of token usage as they occur</p>
-                </TooltipContent>
-              </Tooltip>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : (
-                <RealtimeTokenChart data={realtimeData} />
-              )}
-            </CardContent>
-          </Card>
+          <RealtimeTokenUsageCard
+            data={realtimeData}
+            isLoading={isLoading}
+          />
 
-          <Card className="md:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Token Usage by Project</CardTitle>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Breakdown of token usage across different projects</p>
-                </TooltipContent>
-              </Tooltip>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <Skeleton className="h-[300px] w-full" />
-              ) : (
-                <ProjectTokenChart data={projectUsage} />
-              )}
-            </CardContent>
-          </Card>
+          <ProjectTokenUsageCard
+            data={projectUsage}
+            isLoading={isLoading}
+          />
         </div>
       </TooltipProvider>
     </div>

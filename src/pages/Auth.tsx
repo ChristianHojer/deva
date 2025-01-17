@@ -15,35 +15,23 @@ export function Auth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         try {
-          // First check if profile exists without using single()
+          // Check if profile exists
           const { data: profiles, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id);
 
           if (profileError) {
-            console.error('Error fetching profile:', profileError);
-            setError('Error accessing profile. Please try again.');
+            console.error('Error checking profile:', profileError);
+            setError('Error checking profile status. Please try again.');
             return;
           }
 
-          // If no profile exists, create one
+          // Profile should be created by the trigger, just verify it exists
           if (!profiles || profiles.length === 0) {
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert([
-                { 
-                  id: session.user.id,
-                  username: session.user.email,
-                  role: 'free'
-                }
-              ]);
-
-            if (insertError) {
-              console.error('Error creating profile:', insertError);
-              setError('Error creating profile. Please try again.');
-              return;
-            }
+            console.error('Profile not found after signup');
+            setError('Error creating profile. Please contact support.');
+            return;
           }
 
           // If everything is successful, navigate to dashboard

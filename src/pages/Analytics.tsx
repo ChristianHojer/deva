@@ -90,8 +90,15 @@ export function Analytics() {
   const handleExport = async (format: 'csv' | 'pdf') => {
     try {
       const exportData = {
-        tokenUsage: realtimeData,
-        projectStats: projectUsage,
+        tokenUsage: realtimeData.map(item => ({
+          date: item.timestamp,
+          tokens: item.tokens
+        })),
+        projectStats: projectUsage.map(project => ({
+          name: project.name,
+          files: 0, // Adding required properties with default values
+          messages: 0 // Adding required properties with default values
+        })),
         errorStats: [] // We'll add error stats in a future update
       };
 

@@ -7,6 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Link } from "react-router-dom";
 import { MenuItemType } from "./types";
 
 const menuItems: MenuItemType[] = [
@@ -30,11 +31,11 @@ export function MainMenu() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild className="hover-scale">
-                <a href={item.url} className="flex items-center gap-2">
+              <SidebarMenuButton>
+                <Link to={item.url} className="flex items-center gap-2 hover-scale">
                   <item.icon className="h-4 w-4" />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

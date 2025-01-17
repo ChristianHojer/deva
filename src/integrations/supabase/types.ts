@@ -243,6 +243,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          status: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -251,6 +252,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -259,12 +261,52 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          project_id: string | null
+          tokens_used: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          project_id?: string | null
+          tokens_used?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          project_id?: string | null
+          tokens_used?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_usage_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_usage_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

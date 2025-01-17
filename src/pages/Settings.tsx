@@ -4,6 +4,7 @@ import { SecuritySection } from "@/components/settings/SecuritySection";
 import { TwoFactorSection } from "@/components/settings/TwoFactorSection";
 import { SessionsSection } from "@/components/settings/SessionsSection";
 import { SubscriptionSection } from "@/components/settings/SubscriptionSection";
+import { UserManagementSection } from "@/components/settings/UserManagementSection";
 
 export const Settings = () => {
   return (
@@ -17,6 +18,7 @@ export const Settings = () => {
       <Separator />
       <div className="grid gap-6">
         <ProfileSection />
+        <UserManagementSection />
         <SecuritySection />
         <TwoFactorSection />
         <SessionsSection />

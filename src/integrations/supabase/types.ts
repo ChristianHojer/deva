@@ -217,9 +217,11 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          is_active: boolean
           language_preference: string | null
           notification_preferences: Json | null
           profile_picture_url: string | null
+          role: Database["public"]["Enums"]["user_role"]
           theme: string | null
           updated_at: string | null
           username: string | null
@@ -227,9 +229,11 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id: string
+          is_active?: boolean
           language_preference?: string | null
           notification_preferences?: Json | null
           profile_picture_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           theme?: string | null
           updated_at?: string | null
           username?: string | null
@@ -237,9 +241,11 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          is_active?: boolean
           language_preference?: string | null
           notification_preferences?: Json | null
           profile_picture_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           theme?: string | null
           updated_at?: string | null
           username?: string | null
@@ -383,6 +389,7 @@ export type Database = {
         | "authorization"
         | "validation"
         | "other"
+      user_role: "free" | "pro" | "team" | "enterprise" | "superadmin"
     }
     CompositeTypes: {
       [_ in never]: never

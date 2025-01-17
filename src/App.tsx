@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/MainLayout";
-import { Home } from "./pages/Home";
-import { Settings } from "./pages/Settings";
+import Home from "./pages/Home";
+import Settings from "./pages/Settings";
 import { Dashboard } from "./pages/Dashboard";
-import { Index } from "./pages/Index";
+import Index from "./pages/Index";
 
 function App() {
   return (

@@ -16,16 +16,36 @@ export function Auth() {
       if (event === 'SIGNED_IN' && session) {
         try {
           // Check if profile exists
-          const { data: profile, error: profileError } = await supabase
+          const { data: existingProfile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
 
-          if (profileError) {
+          if (profileError && profileError.code !== 'PGRST116') {
             console.error('Error fetching profile:', profileError);
             setError('Error accessing profile. Please try again.');
             return;
+          }
+
+          // If no profile exists, create one
+          if (!existingProfile) {
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert([
+                { 
+                  id: session.user.id,
+                  username: session.user.email,
+                  role: 'free'
+                }
+              ])
+              .single();
+
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+              setError('Error creating profile. Please try again.');
+              return;
+            }
           }
 
           // If everything is successful, navigate to dashboard

@@ -17,7 +17,8 @@ export const useMessages = (projectId: string | undefined, activeTab: string) =>
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!projectId) return;
+    // Only fetch messages if we have a valid projectId
+    if (!projectId || projectId === ':projectId') return;
     
     fetchMessages();
 
@@ -47,35 +48,44 @@ export const useMessages = (projectId: string | undefined, activeTab: string) =>
   }, [activeTab, projectId]);
 
   const fetchMessages = async () => {
-    if (!projectId) return;
+    // Guard against invalid projectId
+    if (!projectId || projectId === ':projectId') return;
 
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('project_id', projectId)
-      .eq('tab_id', activeTab)
-      .order('timestamp', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('tab_id', activeTab)
+        .order('timestamp', { ascending: true });
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Error fetching messages",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const messagesWithDates = data?.map(msg => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp as string)
+      })) || [];
+
+      setMessages(messagesWithDates);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
       toast({
         title: "Error fetching messages",
-        description: error.message,
+        description: "Failed to load messages. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    const messagesWithDates = data?.map(msg => ({
-      ...msg,
-      timestamp: new Date(msg.timestamp as string)
-    })) || [];
-
-    setMessages(messagesWithDates);
   };
 
   const sendMessage = async (inputMessage: string, fileData?: { name: string; url: string; type: string }) => {
-    if (!inputMessage.trim() && !fileData) return;
-    if (!projectId) return;
+    if ((!inputMessage.trim() && !fileData) || !projectId || projectId === ':projectId') return;
 
     const timestamp = new Date();
     const newMessage = {
@@ -100,18 +110,26 @@ export const useMessages = (projectId: string | undefined, activeTab: string) =>
     
     setMessages((prev) => [...prev, optimisticMessage]);
 
-    const { error } = await supabase
-      .from('messages')
-      .insert(newMessage);
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert(newMessage);
 
-    if (error) {
+      if (error) {
+        setMessages((prev) => prev.filter(msg => msg.id !== optimisticMessage.id));
+        toast({
+          title: "Error sending message",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       setMessages((prev) => prev.filter(msg => msg.id !== optimisticMessage.id));
       toast({
         title: "Error sending message",
-        description: error.message,
+        description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
-      return;
     }
   };
 

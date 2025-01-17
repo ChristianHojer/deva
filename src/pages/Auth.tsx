@@ -1,18 +1,39 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/lib/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthError } from "@supabase/supabase-js";
 
 export function Auth() {
   const navigate = useNavigate();
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        navigate('/dashboard');
+        try {
+          // Check if profile exists
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            setError('Error accessing profile. Please try again.');
+            return;
+          }
+
+          // If everything is successful, navigate to dashboard
+          navigate('/dashboard');
+        } catch (err) {
+          console.error('Auth error:', err);
+          setError(err instanceof AuthError ? err.message : 'An unexpected error occurred');
+        }
       }
     });
 
@@ -29,6 +50,11 @@ export function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <SupabaseAuth 
             supabaseClient={supabase}
             appearance={{ 

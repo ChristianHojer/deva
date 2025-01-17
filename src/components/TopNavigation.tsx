@@ -5,6 +5,7 @@ const tabGroups = [
   {
     id: 'creation',
     tabs: [
+      { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
       { id: 'discover', label: 'Discover', path: '/discover' },
       { id: 'iterate', label: 'Iterate', path: '/iterate' }
     ]

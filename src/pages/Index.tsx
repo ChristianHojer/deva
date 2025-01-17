@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import { ChatSection } from "@/components/sections/ChatSection";
 import { VisualizationSection } from "@/components/sections/VisualizationSection";
 import { BugsList } from "@/components/sections/BugsList";
+import { ProjectDashboard } from "@/components/sections/ProjectDashboard";
 
 const Index = () => {
   const location = useLocation();
@@ -18,6 +19,8 @@ const Index = () => {
         return <ChatSection activeTab={currentTab} variant="code" />;
       case 'bugs':
         return <BugsList />;
+      case 'dashboard':
+        return <ProjectDashboard />;
       default:
         return <ChatSection activeTab="discover" />;
     }

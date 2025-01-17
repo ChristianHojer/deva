@@ -1,4 +1,4 @@
-import { Home, Settings, Plus } from "lucide-react";
+import { Home, Settings, Plus, LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,6 +28,11 @@ const menuItems = [
     title: "Home",
     icon: Home,
     url: "/",
+  },
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    url: "/dashboard",
   },
   {
     title: "User Settings",

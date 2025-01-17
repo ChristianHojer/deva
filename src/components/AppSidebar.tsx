@@ -1,4 +1,4 @@
-import { Home, Settings, Plus, LayoutDashboard } from "lucide-react";
+import { Settings, Plus, LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,11 +24,6 @@ type Project = {
 };
 
 const menuItems = [
-  {
-    title: "Home",
-    icon: Home,
-    url: "/",
-  },
   {
     title: "Dashboard",
     icon: LayoutDashboard,

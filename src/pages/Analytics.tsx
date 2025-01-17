@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { TokenUsageStats } from "@/components/dashboard/TokenUsageStats";
 import { useTokenUsage } from "@/hooks/useTokenUsage";
 import { supabase } from "@/lib/supabase";
@@ -8,12 +9,16 @@ import { Area, AreaChart, XAxis, YAxis, BarChart, Bar, Legend } from "recharts";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
 import { useProjects } from "@/hooks/useProjects";
+import { exportToCSV, exportToPDF } from "@/utils/exportUtils";
+import { Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type TokenUsageRow = Database['public']['Tables']['token_usage']['Row'];
 
 export function Analytics() {
   const { monthlyUsage, yearlyUsage, isLoading } = useTokenUsage();
   const { projects } = useProjects();
+  const { toast } = useToast();
   const [realtimeData, setRealtimeData] = useState<Array<{ timestamp: string; tokens: number }>>([]);
   const [projectUsage, setProjectUsage] = useState<Array<{ name: string; tokens: number }>>([]);
 
@@ -82,9 +87,57 @@ export function Analytics() {
     };
   }, []);
 
+  const handleExport = async (format: 'csv' | 'pdf') => {
+    try {
+      const exportData = {
+        tokenUsage: realtimeData,
+        projectStats: projectUsage,
+        errorStats: [] // We'll add error stats in a future update
+      };
+
+      if (format === 'csv') {
+        exportToCSV(exportData);
+      } else {
+        exportToPDF(exportData);
+      }
+
+      toast({
+        title: "Export Successful",
+        description: `Analytics data exported as ${format.toUpperCase()}`,
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting the analytics data",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Analytics</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Analytics</h1>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => handleExport('csv')}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleExport('pdf')}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export PDF
+          </Button>
+        </div>
+      </div>
       
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

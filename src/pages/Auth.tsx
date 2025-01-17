@@ -24,11 +24,12 @@ export function Auth() {
       
       if (event === 'SIGNED_IN' && session) {
         try {
-          // Check if profile exists
-          const { data: profiles, error: profileError } = await supabase
+          // Get the user's profile
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id);
+            .eq('id', session.user.id)
+            .single();
 
           if (profileError) {
             console.error('Error checking profile:', profileError);
@@ -36,8 +37,7 @@ export function Auth() {
             return;
           }
 
-          // Profile should be created by the trigger, just verify it exists
-          if (!profiles || profiles.length === 0) {
+          if (!profile) {
             console.error('Profile not found after signup');
             setError('Error creating profile. Please contact support.');
             return;

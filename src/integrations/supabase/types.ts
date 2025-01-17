@@ -375,7 +375,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_superadmin_user: {
+        Args: {
+          email: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       activity_type: "message" | "file" | "error" | "code_change"

@@ -30,42 +30,11 @@ export function Auth() {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
-        setIsLoading(true); // Set loading while we check the profile
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error('Error checking profile:', profileError);
-            setError('Error checking profile status. Please try again.');
-            setIsLoading(false);
-            return;
-          }
-
-          if (!profile) {
-            console.error('Profile not found after signup');
-            setError('Error creating profile. Please contact support.');
-            setIsLoading(false);
-            return;
-          }
-
-          navigate('/dashboard');
-        } catch (err) {
-          console.error('Auth error:', err);
-          if (err instanceof AuthApiError) {
-            setError(err.message);
-          } else {
-            setError(err instanceof AuthError ? err.message : 'An unexpected error occurred');
-          }
-          setIsLoading(false);
-        }
+        navigate('/dashboard');
       } else if (event === 'SIGNED_OUT') {
         setIsLoading(false);
       }

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Download, FileDown, Loader2 } from "lucide-react";
 import { Area, AreaChart, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, BarChart, Bar } from "recharts";
-import { analyticsService } from "@/services/analyticsService";
+import { analyticsService, ActivityType } from "@/services/analyticsService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
@@ -12,35 +12,37 @@ import { addDays, startOfMonth } from "date-fns";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useProjects } from "@/hooks/useProjects";
 import { DateRange } from "react-day-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function Analytics() {
   const { toast } = useToast();
   const { projects } = useProjects();
   
-  // Date range state
   const [dateRange, setDateRange] = useState<DateRange & { to: Date }>({
     from: startOfMonth(new Date()),
     to: new Date(),
   });
 
-  // Project selection state
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [activityType, setActivityType] = useState<ActivityType>('all');
 
   const { data: tokenUsage, isLoading: isLoadingTokens } = useQuery({
-    queryKey: ['analytics', 'token-usage', dateRange, selectedProjects],
+    queryKey: ['analytics', 'token-usage', dateRange, selectedProjects, activityType],
     queryFn: () => analyticsService.getTokenUsage({
       startDate: dateRange.from,
       endDate: dateRange.to,
-      projectIds: selectedProjects
+      projectIds: selectedProjects,
+      activityType
     }),
   });
 
   const { data: projectStats, isLoading: isLoadingProjects } = useQuery({
-    queryKey: ['analytics', 'project-stats', dateRange, selectedProjects],
+    queryKey: ['analytics', 'project-stats', dateRange, selectedProjects, activityType],
     queryFn: () => analyticsService.getProjectStats({
       startDate: dateRange.from,
       endDate: dateRange.to,
-      projectIds: selectedProjects
+      projectIds: selectedProjects,
+      activityType
     }),
   });
 
@@ -100,7 +102,6 @@ export function Analytics() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      {/* Header and Filters */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
@@ -149,10 +150,24 @@ export function Analytics() {
             value={selectedProjects}
             onChange={setSelectedProjects}
           />
+          <Select
+            value={activityType}
+            onValueChange={(value) => setActivityType(value as ActivityType)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select activity type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Activities</SelectItem>
+              <SelectItem value="message">Messages</SelectItem>
+              <SelectItem value="file">Files</SelectItem>
+              <SelectItem value="error">Errors</SelectItem>
+              <SelectItem value="code_change">Code Changes</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Token Usage Over Time */}
       <Card>
         <CardHeader>
           <CardTitle>Token Usage Over Time</CardTitle>
@@ -171,7 +186,6 @@ export function Analytics() {
         </CardContent>
       </Card>
 
-      {/* Project Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>

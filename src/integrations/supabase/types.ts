@@ -80,6 +80,7 @@ export type Database = {
         Row: {
           code: string
           created_at: string | null
+          error_type: string | null
           id: string
           message: string
           solution: string | null
@@ -89,6 +90,7 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string | null
+          error_type?: string | null
           id?: string
           message: string
           solution?: string | null
@@ -98,6 +100,7 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string | null
+          error_type?: string | null
           id?: string
           message?: string
           solution?: string | null
@@ -108,6 +111,7 @@ export type Database = {
       }
       file_uploads: {
         Row: {
+          activity_type: string | null
           file_name: string
           file_type: string | null
           file_url: string
@@ -116,6 +120,7 @@ export type Database = {
           uploaded_at: string | null
         }
         Insert: {
+          activity_type?: string | null
           file_name: string
           file_type?: string | null
           file_url: string
@@ -124,6 +129,7 @@ export type Database = {
           uploaded_at?: string | null
         }
         Update: {
+          activity_type?: string | null
           file_name?: string
           file_type?: string | null
           file_url?: string
@@ -170,6 +176,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          activity_type: string | null
           content: string | null
           file_name: string | null
           file_type: string | null
@@ -181,6 +188,7 @@ export type Database = {
           timestamp: string | null
         }
         Insert: {
+          activity_type?: string | null
           content?: string | null
           file_name?: string | null
           file_type?: string | null
@@ -192,6 +200,7 @@ export type Database = {
           timestamp?: string | null
         }
         Update: {
+          activity_type?: string | null
           content?: string | null
           file_name?: string | null
           file_type?: string | null
@@ -357,7 +366,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      activity_type: "message" | "file" | "error" | "code_change"
+      error_type:
+        | "syntax"
+        | "runtime"
+        | "logic"
+        | "network"
+        | "database"
+        | "authentication"
+        | "authorization"
+        | "validation"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never

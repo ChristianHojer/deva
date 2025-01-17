@@ -1,15 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-
-interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-  status?: string;  // Added this field
-}
+import { projectsService } from "@/services/projectsService";
+import type { CreateProjectInput, Project, UpdateProjectInput } from "@/types/project";
 
 export function useProjects() {
   const queryClient = useQueryClient();
@@ -17,28 +9,11 @@ export function useProjects() {
 
   const { data: projects, isLoading, error } = useQuery({
     queryKey: ['projects'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Project[];
-    },
+    queryFn: projectsService.getProjects,
   });
 
   const createProject = useMutation({
-    mutationFn: async ({ name, description }: { name: string; description?: string }) => {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([{ name, description }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (input: CreateProjectInput) => projectsService.createProject(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast({
@@ -56,17 +31,7 @@ export function useProjects() {
   });
 
   const updateProject = useMutation({
-    mutationFn: async ({ id, name, description }: { id: string; name: string; description?: string }) => {
-      const { data, error } = await supabase
-        .from('projects')
-        .update({ name, description })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (input: UpdateProjectInput) => projectsService.updateProject(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast({
@@ -84,14 +49,7 @@ export function useProjects() {
   });
 
   const deleteProject = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('projects')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
+    mutationFn: projectsService.deleteProject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast({

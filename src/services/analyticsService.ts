@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
 export type ActivityType = 'message' | 'file' | 'error' | 'code_change' | 'all';
+export type ErrorType = 'syntax' | 'runtime' | 'logic' | 'network' | 'database' | 'authentication' | 'authorization' | 'validation' | 'other' | 'all';
 
 export const analyticsService = {
   async getTokenUsage({ startDate, endDate, projectIds, activityType }: { 
@@ -86,23 +87,35 @@ export const analyticsService = {
     return { activity };
   },
 
-  async getErrorStats({ startDate, endDate, projectIds }: { 
+  async getErrorStats({ 
+    startDate, 
+    endDate, 
+    projectIds,
+    errorType = 'all'
+  }: { 
     startDate: Date; 
     endDate: Date; 
     projectIds: string[];
+    errorType?: ErrorType;
   }) {
-    const { data: errorCodes, error } = await supabase
+    const query = supabase
       .from('error_codes')
       .select('*')
       .gte('created_at', startDate.toISOString())
       .lte('created_at', endDate.toISOString());
 
+    if (errorType !== 'all') {
+      query.eq('error_type', errorType);
+    }
+
+    const { data: errorCodes, error } = await query;
     if (error) throw error;
 
     const common_errors = errorCodes?.map(error => ({
       type: error.code,
       description: error.message,
-      solution: error.solution || 'No solution provided'
+      solution: error.solution || 'No solution provided',
+      errorType: error.error_type
     })) || [];
 
     return { common_errors };

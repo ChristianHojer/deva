@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Download, FileDown, Loader2 } from "lucide-react";
 import { Area, AreaChart, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, BarChart, Bar } from "recharts";
-import { analyticsService, ActivityType } from "@/services/analyticsService";
+import { analyticsService, ActivityType, ErrorType } from "@/services/analyticsService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
@@ -25,6 +25,7 @@ export function Analytics() {
 
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [activityType, setActivityType] = useState<ActivityType>('all');
+  const [errorType, setErrorType] = useState<ErrorType>('all');
 
   const { data: tokenUsage, isLoading: isLoadingTokens } = useQuery({
     queryKey: ['analytics', 'token-usage', dateRange, selectedProjects, activityType],
@@ -47,11 +48,12 @@ export function Analytics() {
   });
 
   const { data: errorStats, isLoading: isLoadingErrors } = useQuery({
-    queryKey: ['analytics', 'error-stats', dateRange, selectedProjects],
+    queryKey: ['analytics', 'error-stats', dateRange, selectedProjects, errorType],
     queryFn: () => analyticsService.getErrorStats({
       startDate: dateRange.from,
       endDate: dateRange.to,
-      projectIds: selectedProjects
+      projectIds: selectedProjects,
+      errorType
     }),
   });
 
@@ -165,6 +167,26 @@ export function Analytics() {
               <SelectItem value="code_change">Code Changes</SelectItem>
             </SelectContent>
           </Select>
+          <Select
+            value={errorType}
+            onValueChange={(value) => setErrorType(value as ErrorType)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select error type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Errors</SelectItem>
+              <SelectItem value="syntax">Syntax Errors</SelectItem>
+              <SelectItem value="runtime">Runtime Errors</SelectItem>
+              <SelectItem value="logic">Logic Errors</SelectItem>
+              <SelectItem value="network">Network Errors</SelectItem>
+              <SelectItem value="database">Database Errors</SelectItem>
+              <SelectItem value="authentication">Authentication Errors</SelectItem>
+              <SelectItem value="authorization">Authorization Errors</SelectItem>
+              <SelectItem value="validation">Validation Errors</SelectItem>
+              <SelectItem value="other">Other Errors</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -215,8 +237,13 @@ export function Analytics() {
             <div className="space-y-4">
               {errorStats?.common_errors.map((error, index) => (
                 <div key={index} className="p-4 rounded-lg border">
-                  <h4 className="font-medium">{error.type}</h4>
-                  <p className="text-sm text-muted-foreground">{error.description}</p>
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-medium">{error.type}</h4>
+                    <span className="text-sm text-muted-foreground px-2 py-1 bg-secondary rounded">
+                      {error.errorType}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">{error.description}</p>
                   <p className="text-sm font-medium mt-2">Suggested Fix:</p>
                   <p className="text-sm text-muted-foreground">{error.solution}</p>
                 </div>

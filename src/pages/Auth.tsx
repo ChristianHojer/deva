@@ -15,21 +15,20 @@ export function Auth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         try {
-          // Check if profile exists
-          const { data: existingProfile, error: profileError } = await supabase
+          // First check if profile exists without using single()
+          const { data: profiles, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id)
-            .single();
+            .eq('id', session.user.id);
 
-          if (profileError && profileError.code !== 'PGRST116') {
+          if (profileError) {
             console.error('Error fetching profile:', profileError);
             setError('Error accessing profile. Please try again.');
             return;
           }
 
           // If no profile exists, create one
-          if (!existingProfile) {
+          if (!profiles || profiles.length === 0) {
             const { error: insertError } = await supabase
               .from('profiles')
               .insert([
@@ -38,8 +37,7 @@ export function Auth() {
                   username: session.user.email,
                   role: 'free'
                 }
-              ])
-              .single();
+              ]);
 
             if (insertError) {
               console.error('Error creating profile:', insertError);

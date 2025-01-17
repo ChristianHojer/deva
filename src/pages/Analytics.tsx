@@ -25,7 +25,7 @@ export function Analytics() {
           table: 'token_usage'
         },
         (payload: RealtimePostgresChangesPayload<TokenUsageRow>) => {
-          if (payload.new && typeof payload.new.tokens_used === 'number') {
+          if (payload.new && 'tokens_used' in payload.new && typeof payload.new.tokens_used === 'number') {
             const timestamp = new Date().toLocaleTimeString();
             const tokens = payload.new.tokens_used;
             

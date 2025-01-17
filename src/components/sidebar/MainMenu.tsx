@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Settings, LayoutDashboard } from "lucide-react";
 import {
   SidebarGroup,
@@ -40,8 +41,7 @@ export function MainMenu() {
                     "hover:scale-105 transition-transform"
                   )}
                 >
-                  {/* Render icon as a component with proper typing */}
-                  {React.createElement(item.icon, { className: "h-4 w-4" })}
+                  <item.icon className="h-4 w-4" />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

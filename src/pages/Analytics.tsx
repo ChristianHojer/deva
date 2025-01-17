@@ -3,36 +3,68 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, FileDown } from "lucide-react";
-import { ChartContainer, ChartTooltip, ChartLegend } from "@/components/ui/chart";
+import { Download, FileDown, Loader2 } from "lucide-react";
 import { Area, AreaChart, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, BarChart, Bar } from "recharts";
 import { analyticsService } from "@/services/analyticsService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
+import { addDays, startOfMonth } from "date-fns";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { useProjects } from "@/hooks/useProjects";
 
 export function Analytics() {
-  const [timeRange, setTimeRange] = useState("monthly");
   const { toast } = useToast();
+  const { projects } = useProjects();
   
+  // Date range state
+  const [dateRange, setDateRange] = useState({
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  });
+
+  // Project selection state
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+
   const { data: tokenUsage, isLoading: isLoadingTokens } = useQuery({
-    queryKey: ['analytics', 'token-usage', timeRange],
-    queryFn: () => analyticsService.getTokenUsage(timeRange),
+    queryKey: ['analytics', 'token-usage', dateRange, selectedProjects],
+    queryFn: () => analyticsService.getTokenUsage({
+      startDate: dateRange.from,
+      endDate: dateRange.to,
+      projectIds: selectedProjects
+    }),
   });
 
   const { data: projectStats, isLoading: isLoadingProjects } = useQuery({
-    queryKey: ['analytics', 'project-stats'],
-    queryFn: analyticsService.getProjectStats,
+    queryKey: ['analytics', 'project-stats', dateRange, selectedProjects],
+    queryFn: () => analyticsService.getProjectStats({
+      startDate: dateRange.from,
+      endDate: dateRange.to,
+      projectIds: selectedProjects
+    }),
   });
 
   const { data: errorStats, isLoading: isLoadingErrors } = useQuery({
-    queryKey: ['analytics', 'error-stats'],
-    queryFn: analyticsService.getErrorStats,
+    queryKey: ['analytics', 'error-stats', dateRange, selectedProjects],
+    queryFn: () => analyticsService.getErrorStats({
+      startDate: dateRange.from,
+      endDate: dateRange.to,
+      projectIds: selectedProjects
+    }),
   });
+
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async (format: 'pdf' | 'csv') => {
     try {
-      const data = await analyticsService.exportAnalytics(format);
-      // Handle the exported data (e.g., trigger download)
+      setIsExporting(true);
+      await analyticsService.exportAnalytics({
+        format,
+        startDate: dateRange.from,
+        endDate: dateRange.to,
+        projectIds: selectedProjects
+      });
+      
       toast({
         title: "Export Successful",
         description: `Analytics data exported as ${format.toUpperCase()}`,
@@ -43,6 +75,8 @@ export function Analytics() {
         description: "Failed to export analytics data. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -60,31 +94,55 @@ export function Analytics() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">Track your project metrics and usage</p>
+      {/* Header and Filters */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+            <p className="text-muted-foreground">Track your project metrics and usage</p>
+          </div>
+          <div className="flex gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => handleExport('csv')}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileDown className="mr-2 h-4 w-4" />
+              )}
+              Export CSV
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => handleExport('pdf')}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Export PDF
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={() => handleExport('csv')}>
-            <FileDown className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
-          <Button variant="outline" onClick={() => handleExport('pdf')}>
-            <Download className="mr-2 h-4 w-4" />
-            Export PDF
-          </Button>
+
+        <div className="flex flex-col md:flex-row gap-4">
+          <DatePickerWithRange
+            date={dateRange}
+            onDateChange={setDateRange}
+          />
+          <MultiSelect
+            placeholder="Select projects"
+            options={projects?.map(project => ({
+              label: project.name,
+              value: project.id
+            })) || []}
+            value={selectedProjects}
+            onChange={setSelectedProjects}
+          />
         </div>
       </div>
 

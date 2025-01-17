@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { MenuItemType } from "./types";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -39,6 +39,7 @@ const menuItems: MenuItem[] = [
 
 export function MainMenu() {
   const { profile } = useProfile();
+  const location = useLocation();
 
   const filteredItems = menuItems.filter(item => 
     !item.role || item.role === profile?.role
@@ -56,7 +57,8 @@ export function MainMenu() {
                   to={item.url} 
                   className={cn(
                     "flex items-center gap-2",
-                    "hover:scale-105 transition-transform"
+                    "hover:scale-105 transition-transform",
+                    location.pathname === item.url && "text-primary font-medium"
                   )}
                 >
                   <item.icon className="h-4 w-4" />

@@ -1,9 +1,9 @@
 import { Separator } from "@/components/ui/separator";
 import { ProfileSettingsForm } from "@/components/settings/ProfileSettingsForm";
 
-const Settings = () => {
+export default function Settings() {
   return (
-    <div className="container max-w-4xl mx-auto space-y-6">
+    <div className="container max-w-4xl mx-auto space-y-6 p-6">
       <div>
         <h3 className="text-2xl font-bold tracking-tight">Profile Settings</h3>
         <p className="text-sm text-muted-foreground mt-2">
@@ -16,6 +16,4 @@ const Settings = () => {
       </div>
     </div>
   );
-};
-
-export default Settings;
+}

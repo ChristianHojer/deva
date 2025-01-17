@@ -6,19 +6,20 @@ const tabGroups = [
     id: 'creation',
     tabs: [
       { id: 'discover', label: 'Discover', path: '/discover' },
-      { id: 'iterate', label: 'Iterate', path: '/iterate' }
+      { id: 'iterate', label: 'Iterate', path: '/iterate' },
+      { id: 'code', label: 'Code', path: '/code' }
     ]
   },
   {
-    id: 'standalone',
+    id: 'visualization',
     tabs: [
-      { id: 'visualization', label: 'Visualization', path: '/visualization' }
+      { id: 'visualize', label: 'Visualization', path: '/visualize' }
     ]
   },
   {
     id: 'development',
     tabs: [
-      { id: 'code', label: 'Code', path: '/code' },
+      { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
       { id: 'bugs', label: 'Bugs', path: '/bugs' }
     ]
   }
@@ -43,7 +44,7 @@ export const TopNavigation = ({ activeTab, setActiveTab, projectId }: TopNavigat
                 key={group.id}
                 className={cn(
                   "flex items-center rounded-lg h-10",
-                  group.id !== 'standalone' && "bg-gray-100 p-1"
+                  group.id !== 'visualization' && "bg-gray-100 p-1"
                 )}
               >
                 <div className="flex items-center space-x-1">

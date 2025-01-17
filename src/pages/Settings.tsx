@@ -1,63 +1,69 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Camera, LogOut, Moon, Sun, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Upload, X, ArrowLeft, Archive } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-
-interface Website {
-  id: string;
-  url: string;
-}
-
-interface Project {
-  id: string;
-  name: string;
-  createdAt: Date;
-  archived?: boolean;
-}
+import { supabase } from "@/lib/supabase";
 
 export const Settings = () => {
-  const [websites, setWebsites] = useState<Website[]>([]);
-  const [newWebsite, setNewWebsite] = useState(false);
-  const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  useEffect(() => {
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      const projects = JSON.parse(storedProjects);
-      setArchivedProjects(projects.filter((p: Project) => p.archived));
-    }
-  }, []);
-
-  const handleUnarchiveProject = (projectId: string) => {
-    const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-    const updatedProjects = storedProjects.map((project: Project) =>
-      project.id === projectId ? { ...project, archived: false } : project
-    );
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
-    setArchivedProjects(archivedProjects.filter(p => p.id !== projectId));
+  const handleUpdateProfile = async () => {
     toast({
-      title: "Project unarchived",
-      description: "The project has been moved back to your active projects.",
+      title: "Profile updated",
+      description: "Your profile information has been updated successfully.",
     });
   };
 
-  const handleDeleteProject = (projectId: string) => {
-    const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-    const updatedProjects = storedProjects.filter((p: Project) => p.id !== projectId);
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
-    setArchivedProjects(archivedProjects.filter(p => p.id !== projectId));
+  const handleUpdatePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please ensure your new password and confirmation match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
-      title: "Project deleted",
-      description: "The project has been permanently deleted.",
+      title: "Password updated",
+      description: "Your password has been updated successfully.",
     });
+  };
+
+  const handleDeleteAccount = async () => {
+    toast({
+      title: "Account deleted",
+      description: "Your account has been permanently deleted.",
+      variant: "destructive",
+    });
+  };
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    navigate("/");
   };
 
   return (
@@ -70,102 +76,172 @@ export const Settings = () => {
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back
       </Button>
-      
-      <h1 className="text-2xl font-bold mb-8">User Settings</h1>
-      
-      <div className="space-y-8">
-        {/* Profile Section */}
-        <section className="space-y-6">
-          <h2 className="text-xl font-semibold">Profile Information</h2>
-          <div className="flex items-start gap-6">
-            <div>
-              <Avatar className="w-24 h-24">
-                <AvatarImage src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7" />
-                <AvatarFallback>User</AvatarFallback>
-              </Avatar>
-              <Button variant="outline" size="sm" className="mt-2">
-                Change Photo
-              </Button>
-            </div>
-            <div className="flex-1 space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Your name" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="company">Company Name</Label>
-                <Input id="company" placeholder="Your company" />
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Archived Projects Section */}
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Archive className="h-5 w-5" />
-            Archived Projects
-          </h2>
-          <div className="grid gap-4">
-            {archivedProjects.length === 0 ? (
-              <p className="text-muted-foreground">No archived projects</p>
-            ) : (
-              archivedProjects.map((project) => (
-                <Card key={project.id}>
-                  <CardHeader className="p-4">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{project.name}</CardTitle>
-                      <div className="space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleUnarchiveProject(project.id)}
-                        >
-                          Unarchive
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteProject(project.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))
-            )}
-          </div>
-        </section>
-
-        {/* File Upload Sections */}
-        <section className="space-y-6">
-          <h2 className="text-xl font-semibold">Files & Documents</h2>
-          
-          {/* Coding Files */}
-          <div className="space-y-2">
-            <Label>Coding Files</Label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center">
-              <Upload className="mx-auto h-8 w-8 text-gray-400" />
-              <div className="mt-2">
-                <Button variant="outline">Upload Coding Files</Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Preferences */}
-          <div className="space-y-2">
-            <Label>Preferences</Label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center">
-              <Upload className="mx-auto h-8 w-8 text-gray-400" />
-              <div className="mt-2">
-                <Button variant="outline">Upload Preferences</Button>
-              </div>
-            </div>
-          </div>
-        </section>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold">User Settings</h1>
+        <Button variant="outline" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign out
+        </Button>
       </div>
+
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Information</CardTitle>
+              <CardDescription>
+                Update your profile information and how others see you on the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback>User</AvatarFallback>
+                </Avatar>
+                <Button variant="outline" size="sm">
+                  <Camera className="mr-2 h-4 w-4" />
+                  Change Photo
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input id="name" placeholder="Your name" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="Your email" />
+                </div>
+                <Button onClick={handleUpdateProfile}>Save Changes</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Password</CardTitle>
+                <CardDescription>
+                  Change your password to keep your account secure
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="current-password">Current Password</Label>
+                  <Input 
+                    id="current-password" 
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input 
+                    id="new-password" 
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Input 
+                    id="confirm-password" 
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleUpdatePassword}>Update Password</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Delete Account</CardTitle>
+                <CardDescription>
+                  Permanently delete your account and all associated data
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Account
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your
+                        account and remove all associated data from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAccount}>
+                        Delete Account
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="preferences">
+          <Card>
+            <CardHeader>
+              <CardTitle>Preferences</CardTitle>
+              <CardDescription>
+                Manage your app preferences and notification settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Enable dark mode for a better viewing experience at night
+                  </p>
+                </div>
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={setIsDarkMode}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Email Notifications</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive email notifications about important updates
+                  </p>
+                </div>
+                <Switch
+                  checked={emailNotifications}
+                  onCheckedChange={setEmailNotifications}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

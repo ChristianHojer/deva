@@ -12,12 +12,14 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { FileUploadDialog } from "@/components/dashboard/FileUploadDialog";
 import { useTokenUsage } from "@/hooks/useTokenUsage";
 import { supabase } from "@/lib/supabase";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { projects, isLoading, createProject, updateProject, deleteProject } = useProjects();
-  const { monthlyUsage, yearlyUsage, isLoading: isLoadingTokens } = useTokenUsage();
+  const { monthlyUsage, yearlyUsage, isLoadingTokens } = useTokenUsage();
+  const isMobile = useIsMobile();
   
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [fileDialogOpen, setFileDialogOpen] = useState(false);
@@ -134,11 +136,11 @@ export function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-4 md:p-6 space-y-6">
       {/* Header Section */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">Welcome to your project overview</p>
         </div>
       </div>
@@ -149,18 +151,30 @@ export function Dashboard() {
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Common tasks and shortcuts</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button variant="outline" className="w-full justify-start" onClick={() => openProjectDialog()}>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start" 
+            onClick={() => openProjectDialog()}
+          >
             <Plus className="mr-2 h-4 w-4" />
-            Create Project
+            {!isMobile && "Create"} Project
           </Button>
-          <Button variant="outline" className="w-full justify-start" onClick={() => setFileDialogOpen(true)}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start" 
+            onClick={() => setFileDialogOpen(true)}
+          >
             <Upload className="mr-2 h-4 w-4" />
-            Upload Files
+            {!isMobile && "Upload"} Files
           </Button>
-          <Button variant="outline" className="w-full justify-start" onClick={handleAnalyticsClick}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start" 
+            onClick={handleAnalyticsClick}
+          >
             <ChartBar className="mr-2 h-4 w-4" />
-            View Analytics
+            {!isMobile && "View"} Analytics
           </Button>
         </CardContent>
       </Card>
@@ -182,26 +196,28 @@ export function Dashboard() {
             ) : (
               projects?.map((project) => (
                 <Card key={project.id} className="hover:bg-accent transition-colors">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
+                  <CardHeader className="p-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="space-y-1 flex-1">
                         <CardTitle className="text-lg">{project.name}</CardTitle>
-                        <CardDescription>
+                        <CardDescription className="text-sm">
                           Status: {project.status || "In Progress"} • Last updated {formatDistanceToNow(new Date(project.updated_at), { addSuffix: true })}
                         </CardDescription>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                         <Button variant="outline" size="sm" onClick={() => openProjectDialog(project)}>
                           <Edit className="h-4 w-4" />
+                          {!isMobile && <span className="ml-2">Edit</span>}
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => {
                           setSelectedProject(project);
                           setDeleteDialogOpen(true);
                         }}>
                           <Trash className="h-4 w-4" />
+                          {!isMobile && <span className="ml-2">Delete</span>}
                         </Button>
                         <Button variant="default" size="sm" onClick={() => handleProjectClick(project.id)}>
-                          Open
+                          {isMobile ? "Open" : "Open Project"}
                         </Button>
                       </div>
                     </div>
@@ -225,27 +241,27 @@ export function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <div className="flex justify-between mb-2">
+                <div className="flex flex-col sm:flex-row justify-between mb-2 gap-2">
                   <span className="text-sm font-medium">Monthly Usage</span>
                   <span className="text-sm text-muted-foreground">
                     {monthlyUsage.used}/{monthlyUsage.limit} tokens
                   </span>
                 </div>
-                <Progress value={(monthlyUsage.used / monthlyUsage.limit) * 100} />
+                <Progress value={(monthlyUsage.used / monthlyUsage.limit) * 100} className="h-2" />
                 {monthlyUsage.used / monthlyUsage.limit > 0.9 && (
                   <p className="text-sm text-yellow-600 mt-1">You are nearing your monthly token limit</p>
                 )}
               </div>
               <div>
-                <div className="flex justify-between mb-2">
+                <div className="flex flex-col sm:flex-row justify-between mb-2 gap-2">
                   <span className="text-sm font-medium">Yearly Usage</span>
                   <span className="text-sm text-muted-foreground">
                     {yearlyUsage.used}/{yearlyUsage.limit} tokens
                   </span>
                 </div>
-                <Progress value={(yearlyUsage.used / yearlyUsage.limit) * 100} />
+                <Progress value={(yearlyUsage.used / yearlyUsage.limit) * 100} className="h-2" />
                 {yearlyUsage.used / yearlyUsage.limit > 0.9 && (
                   <p className="text-sm text-yellow-600 mt-1">You are nearing your yearly token limit</p>
                 )}

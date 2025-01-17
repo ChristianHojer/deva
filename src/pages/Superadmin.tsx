@@ -12,10 +12,25 @@ interface RoleStats {
 }
 
 export const Superadmin = () => {
-  const { profile } = useProfile();
+  const { profile, isLoading, error } = useProfile();
+  
+  console.log('Superadmin page - Profile:', profile);
+  console.log('Superadmin page - Loading:', isLoading);
+  console.log('Superadmin page - Error:', error);
+
+  // Show loading state
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // Show error state
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   // Redirect non-superadmin users
-  if (profile?.role !== 'superadmin') {
+  if (!profile || profile.role !== 'superadmin') {
+    console.log('Access denied - Current role:', profile?.role);
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -28,7 +43,11 @@ export const Superadmin = () => {
           .from('profiles')
           .select('role, count')
           .select('role')
-          .then(({ data }) => {
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Role stats error:', error);
+              return [];
+            }
             if (!data) return [];
             const stats: Record<string, number> = {};
             data.forEach(user => {
@@ -42,12 +61,24 @@ export const Superadmin = () => {
           .select('count')
           .eq('status', 'In Progress')
           .single()
-          .then(({ count }) => count || 0),
+          .then(({ count, error }) => {
+            if (error) {
+              console.error('Project stats error:', error);
+              return 0;
+            }
+            return count || 0;
+          }),
         // Get total token usage
         supabase
           .from('token_usage')
           .select('tokens_used')
-          .then(({ data }) => data?.reduce((sum, record) => sum + record.tokens_used, 0) || 0)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Token usage error:', error);
+              return 0;
+            }
+            return data?.reduce((sum, record) => sum + record.tokens_used, 0) || 0;
+          })
       ]);
 
       return {

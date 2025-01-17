@@ -36,8 +36,13 @@ export function useProfile() {
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      console.log('Fetching profile...');
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!user) {
+        console.log('No user found');
+        throw new Error('No user found');
+      }
+      console.log('User ID:', user.id);
 
       const { data, error } = await supabase
         .from('profiles')
@@ -45,7 +50,12 @@ export function useProfile() {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Profile fetch error:', error);
+        throw error;
+      }
+      
+      console.log('Profile data:', data);
       return data as Profile;
     },
   });

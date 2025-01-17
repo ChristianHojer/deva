@@ -25,13 +25,15 @@ export function Analytics() {
           table: 'token_usage'
         },
         (payload: RealtimePostgresChangesPayload<TokenUsageRow>) => {
-          const timestamp = new Date().toLocaleTimeString();
-          const tokens = payload.new.tokens_used;
-          
-          setRealtimeData(prev => {
-            const newData = [...prev, { timestamp, tokens }];
-            return newData.slice(-10);
-          });
+          if (payload.new && typeof payload.new.tokens_used === 'number') {
+            const timestamp = new Date().toLocaleTimeString();
+            const tokens = payload.new.tokens_used;
+            
+            setRealtimeData(prev => {
+              const newData = [...prev, { timestamp, tokens }];
+              return newData.slice(-10);
+            });
+          }
         }
       )
       .subscribe();

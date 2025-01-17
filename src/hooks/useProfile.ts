@@ -34,30 +34,43 @@ export function useProfile() {
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      if (!user) return null;
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!session) return null;
 
-      const { data, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, username, profile_picture_url, language_preference, theme, notification_preferences, role, is_active')
-        .eq('id', user.id)
-        .maybeSingle();
+        console.log("Session found:", session.user.id); // Debug log
 
-      if (profileError) throw profileError;
-      return data as Profile | null;
+        const { data, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, username, profile_picture_url, language_preference, theme, notification_preferences, role, is_active')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error("Profile fetch error:", profileError); // Debug log
+          throw profileError;
+        }
+
+        console.log("Profile data:", data); // Debug log
+        return data as Profile | null;
+      } catch (error) {
+        console.error("Profile query error:", error); // Debug log
+        throw error;
+      }
     },
+    retry: 1,
   });
 
   const updateProfile = useMutation({
     mutationFn: async (updateData: UpdateProfileData) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No authenticated session');
 
       const { data, error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .select()
         .single();
 

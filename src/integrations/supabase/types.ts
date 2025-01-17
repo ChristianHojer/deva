@@ -286,6 +286,8 @@ export type Database = {
       }
       token_usage: {
         Row: {
+          activity_details: Json | null
+          activity_type: string | null
           created_at: string | null
           id: string
           project_id: string | null
@@ -293,6 +295,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          activity_details?: Json | null
+          activity_type?: string | null
           created_at?: string | null
           id?: string
           project_id?: string | null
@@ -300,6 +304,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          activity_details?: Json | null
+          activity_type?: string | null
           created_at?: string | null
           id?: string
           project_id?: string | null

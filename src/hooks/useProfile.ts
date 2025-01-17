@@ -12,6 +12,8 @@ interface Profile {
     email: boolean;
     push: boolean;
   };
+  role: 'free' | 'pro' | 'team' | 'enterprise' | 'superadmin';
+  is_active: boolean;
 }
 
 interface UpdateProfileData {
@@ -23,6 +25,8 @@ interface UpdateProfileData {
     email: boolean;
     push: boolean;
   };
+  role?: 'free' | 'pro' | 'team' | 'enterprise' | 'superadmin';
+  is_active?: boolean;
 }
 
 export function useProfile() {

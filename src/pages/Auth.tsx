@@ -6,25 +6,35 @@ import { supabase } from "@/lib/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Loader2 } from "lucide-react";
 
 export function Auth() {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already signed in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/dashboard');
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to check session');
+      } finally {
+        setIsLoading(false);
       }
-    });
+    };
+
+    checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
         try {
-          // Get the user's profile
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -43,25 +53,11 @@ export function Auth() {
             return;
           }
 
-          // If everything is successful, navigate to dashboard
           navigate('/dashboard');
         } catch (err) {
           console.error('Auth error:', err);
           if (err instanceof AuthApiError) {
-            switch (err.status) {
-              case 400:
-                if (err.message.includes('Invalid login credentials')) {
-                  setError('Account not found. Please sign up first or check your credentials.');
-                } else {
-                  setError('Invalid email or password. Please check your credentials and try again.');
-                }
-                break;
-              case 422:
-                setError('Invalid email format. Please enter a valid email address.');
-                break;
-              default:
-                setError(err.message);
-            }
+            setError(err.message);
           } else {
             setError(err instanceof AuthError ? err.message : 'An unexpected error occurred');
           }
@@ -71,6 +67,17 @@ export function Auth() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+          <p className="text-sm text-gray-500">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

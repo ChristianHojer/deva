@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link, LinkProps } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MenuItemType } from "./types";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ export function MainMenu() {
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <Link<LinkProps>
+                <Link
                   to={item.url} 
                   className={cn(
                     "flex items-center gap-2",

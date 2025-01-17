@@ -35,30 +35,18 @@ export function useProfile() {
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        console.error('User fetch error:', userError);
-        throw userError;
-      }
-      
-      if (!user) {
-        console.log('No user found');
-        return null;
-      }
+      if (userError) throw userError;
+      if (!user) return null;
 
       const { data, error: profileError } = await supabase
         .from('profiles')
-        .select()
+        .select('id, username, profile_picture_url, language_preference, theme, notification_preferences, role, is_active')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (profileError) {
-        console.error('Profile fetch error:', profileError);
-        throw profileError;
-      }
-
+      if (profileError) throw profileError;
       return data as Profile | null;
     },
-    retry: false
   });
 
   const updateProfile = useMutation({
@@ -84,9 +72,10 @@ export function useProfile() {
       });
     },
     onError: (error) => {
+      console.error('Profile update error:', error);
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: "There was an error updating your profile. Please try again.",
         variant: "destructive",
       });
     },

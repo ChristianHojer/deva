@@ -1,8 +1,9 @@
 import * as React from "react"
-import { X } from "lucide-react"
+import { X, Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command"
 import { Command as CommandPrimitive } from "cmdk"
+import { cn } from "@/lib/utils"
 
 type Option = {
   label: string

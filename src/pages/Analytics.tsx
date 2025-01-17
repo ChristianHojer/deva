@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Download, FileDown, Loader2 } from "lucide-react";
 import { Area, AreaChart, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, BarChart, Bar } from "recharts";
@@ -12,13 +11,14 @@ import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { addDays, startOfMonth } from "date-fns";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useProjects } from "@/hooks/useProjects";
+import { DateRange } from "react-day-picker";
 
 export function Analytics() {
   const { toast } = useToast();
   const { projects } = useProjects();
   
   // Date range state
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<DateRange & { to: Date }>({
     from: startOfMonth(new Date()),
     to: new Date(),
   });
@@ -80,6 +80,12 @@ export function Analytics() {
     }
   };
 
+  const handleDateRangeChange = (range: DateRange) => {
+    if (range.from && range.to) {
+      setDateRange(range as DateRange & { to: Date });
+    }
+  };
+
   if (isLoadingTokens || isLoadingProjects || isLoadingErrors) {
     return (
       <div className="container mx-auto p-6 space-y-8">
@@ -132,7 +138,7 @@ export function Analytics() {
         <div className="flex flex-col md:flex-row gap-4">
           <DatePickerWithRange
             date={dateRange}
-            onDateChange={setDateRange}
+            onDateChange={handleDateRangeChange}
           />
           <MultiSelect
             placeholder="Select projects"

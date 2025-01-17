@@ -31,12 +31,10 @@ export function MainMenu() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton>
-                <Link to={item.url} className="flex items-center gap-2 hover-scale">
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
+              <Link to={item.url} className="flex items-center gap-2 hover-scale">
+                <item.icon className="h-4 w-4" />
+                <span>{item.title}</span>
+              </Link>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

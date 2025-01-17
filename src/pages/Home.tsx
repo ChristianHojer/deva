@@ -81,7 +81,7 @@ const Home = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-900">
       <ProjectDialog
         open={open}
         setOpen={setOpen}
@@ -93,7 +93,7 @@ const Home = () => {
         handleCreateProject={handleCreateProject}
       />
 
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen text-white p-4">
         <div className="max-w-3xl w-full space-y-8 text-center mb-8">
           <h1 className="text-4xl font-bold tracking-tight">
             Create without limits.
@@ -162,7 +162,7 @@ const Home = () => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

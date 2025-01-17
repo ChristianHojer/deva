@@ -21,11 +21,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
+          <Route path="/" element={<Home />} />
+          <Route element={<MainLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="project/:projectId" element={<MainLayout />}>
+            <Route path="project/:projectId/*">
               <Route path="discover" element={<Index />} />
               <Route path="iterate" element={<Index />} />
               <Route path="visualization" element={<Index />} />

@@ -8,6 +8,7 @@ export const MainLayout = () => {
   const [activeTab, setActiveTab] = useState('discover');
   const location = useLocation();
   const { projectId } = useParams();
+  const isProjectPage = location.pathname.includes('/project/');
 
   useEffect(() => {
     const path = location.pathname.split('/').pop();
@@ -21,11 +22,13 @@ export const MainLayout = () => {
       <div className="min-h-screen flex w-full">
         <AppSidebar selectedProjectId={projectId} />
         <div className="flex-1 flex flex-col">
-          <TopNavigation 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab}
-            projectId={projectId}
-          />
+          {isProjectPage && (
+            <TopNavigation 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab}
+              projectId={projectId}
+            />
+          )}
           <main className="flex-1 p-6">
             <Outlet />
           </main>

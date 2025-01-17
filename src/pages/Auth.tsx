@@ -15,21 +15,30 @@ export function Auth() {
 
   useEffect(() => {
     // Initial session check
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
       if (error) {
         console.error('Session check error:', error);
         setError(error.message);
       } else if (session) {
+        console.log("Active session found, redirecting to dashboard");
         navigate('/dashboard');
+      } else {
+        console.log("No active session found, showing auth form");
       }
+      
       setIsLoading(false);
-    });
+    };
+
+    checkSession();
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
+        console.log("User signed in, redirecting to dashboard");
         navigate('/dashboard');
       }
     });

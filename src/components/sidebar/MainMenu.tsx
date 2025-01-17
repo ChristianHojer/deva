@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, LayoutDashboard } from "lucide-react";
+import { Settings, LayoutDashboard, LucideIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -12,7 +12,11 @@ import { Link } from "react-router-dom";
 import { MenuItemType } from "./types";
 import { cn } from "@/lib/utils";
 
-const menuItems: MenuItemType[] = [
+interface MenuItem extends MenuItemType {
+  icon: LucideIcon;  // Update the type to LucideIcon
+}
+
+const menuItems: MenuItem[] = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,

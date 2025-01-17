@@ -160,21 +160,6 @@ export function Analytics() {
     }
   };
 
-  const presetRanges = {
-    "last7Days": {
-      label: "Last 7 Days",
-      range: { from: subDays(new Date(), 7), to: new Date() }
-    },
-    "lastMonth": {
-      label: "Last Month",
-      range: { from: startOfMonth(subDays(new Date(), 30)), to: endOfMonth(subDays(new Date(), 30)) }
-    },
-    "lastYear": {
-      label: "Last Year",
-      range: { from: startOfYear(new Date()), to: new Date() }
-    }
-  };
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <AnalyticsHeader onExport={handleExport} />
@@ -215,8 +200,8 @@ export function Analytics() {
         </Select>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <TooltipProvider>
+      <TooltipProvider>
+        <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Token Usage Overview</CardTitle>
@@ -286,8 +271,8 @@ export function Analytics() {
               )}
             </CardContent>
           </Card>
-        </TooltipProvider>
-      </div>
+        </div>
+      </TooltipProvider>
     </div>
   );
 }

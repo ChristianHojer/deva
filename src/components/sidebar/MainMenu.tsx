@@ -40,7 +40,8 @@ export function MainMenu() {
                     "hover:scale-105 transition-transform"
                   )}
                 >
-                  <item.icon className="h-4 w-4" />
+                  {/* Render icon as a component with proper typing */}
+                  {React.createElement(item.icon, { className: "h-4 w-4" })}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

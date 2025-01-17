@@ -1,40 +1,14 @@
-import { Settings, Plus, LayoutDashboard } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { ProjectDialog } from "./sidebar/ProjectDialog";
-import { ProjectMenuItem } from "./sidebar/ProjectMenuItem";
-
-type Project = {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  archived?: boolean;
-};
-
-const menuItems = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    url: "/dashboard",
-  },
-  {
-    title: "User Settings",
-    icon: Settings,
-    url: "/settings",
-  },
-];
+import { MainMenu } from "./sidebar/MainMenu";
+import { ProjectsMenu } from "./sidebar/ProjectsMenu";
+import { Project } from "./sidebar/types";
 
 interface AppSidebarProps {
   selectedProjectId?: string;
@@ -134,8 +108,6 @@ export function AppSidebar({ selectedProjectId }: AppSidebarProps) {
     }
   };
 
-  const activeProjects = projects.filter(project => !project.archived);
-
   return (
     <>
       <ProjectDialog
@@ -151,58 +123,21 @@ export function AppSidebar({ selectedProjectId }: AppSidebarProps) {
 
       <Sidebar>
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className="hover-scale">
-                      <a href={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup>
-            <SidebarGroupLabel>Projects</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {activeProjects.map((project) => (
-                  <ProjectMenuItem
-                    key={project.id}
-                    project={project}
-                    selectedProjectId={selectedProjectId}
-                    onProjectClick={handleProjectClick}
-                    onRename={handleRenameProject}
-                    onArchive={handleArchiveProject}
-                    onDelete={handleDeleteProject}
-                  />
-                ))}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="hover-scale">
-                    <button 
-                      onClick={() => {
-                        setEditingProject(null);
-                        setProjectName("");
-                        setProjectDescription("");
-                        setOpen(true);
-                      }} 
-                      className="flex w-full items-center gap-2 text-muted-foreground hover:text-foreground"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Add new project</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <MainMenu />
+          <ProjectsMenu
+            projects={projects}
+            selectedProjectId={selectedProjectId}
+            onProjectClick={handleProjectClick}
+            onRename={handleRenameProject}
+            onArchive={handleArchiveProject}
+            onDelete={handleDeleteProject}
+            onAddNew={() => {
+              setEditingProject(null);
+              setProjectName("");
+              setProjectDescription("");
+              setOpen(true);
+            }}
+          />
         </SidebarContent>
       </Sidebar>
     </>

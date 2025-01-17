@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, LayoutDashboard, LucideIcon } from "lucide-react";
+import { Settings, LayoutDashboard, Shield, LucideIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -11,12 +11,20 @@ import {
 import { Link } from "react-router-dom";
 import { MenuItemType } from "./types";
 import { cn } from "@/lib/utils";
+import { useProfile } from "@/hooks/useProfile";
 
 interface MenuItem extends MenuItemType {
-  icon: LucideIcon;  // Update the type to LucideIcon
+  icon: LucideIcon;
+  role?: string;
 }
 
 const menuItems: MenuItem[] = [
+  {
+    title: "Superadmin",
+    icon: Shield,
+    url: "/superadmin",
+    role: "superadmin"
+  },
   {
     title: "Dashboard",
     icon: LayoutDashboard,
@@ -30,12 +38,18 @@ const menuItems: MenuItem[] = [
 ];
 
 export function MainMenu() {
+  const { profile } = useProfile();
+
+  const filteredItems = menuItems.filter(item => 
+    !item.role || item.role === profile?.role
+  );
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {menuItems.map((item) => (
+          {filteredItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <Link

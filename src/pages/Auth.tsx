@@ -5,7 +5,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/lib/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 export function Auth() {
   const navigate = useNavigate();
@@ -38,7 +38,20 @@ export function Auth() {
           navigate('/dashboard');
         } catch (err) {
           console.error('Auth error:', err);
-          setError(err instanceof AuthError ? err.message : 'An unexpected error occurred');
+          if (err instanceof AuthApiError) {
+            switch (err.status) {
+              case 400:
+                setError('Invalid email or password. Please check your credentials and try again.');
+                break;
+              case 422:
+                setError('Invalid email format. Please enter a valid email address.');
+                break;
+              default:
+                setError(err.message);
+            }
+          } else {
+            setError(err instanceof AuthError ? err.message : 'An unexpected error occurred');
+          }
         }
       }
     });

@@ -37,15 +37,21 @@ export function ProfileSettingsForm() {
       username: profile?.username || "",
       language_preference: profile?.language_preference || "en",
       theme: profile?.theme || "light",
-      notification_preferences: profile?.notification_preferences || {
-        email: true,
-        push: true,
+      notification_preferences: {
+        email: profile?.notification_preferences?.email ?? true,
+        push: profile?.notification_preferences?.push ?? true,
       },
     },
   });
 
   function onSubmit(data: ProfileFormValues) {
-    updateProfile.mutate(data);
+    updateProfile.mutate({
+      ...data,
+      notification_preferences: {
+        email: data.notification_preferences.email,
+        push: data.notification_preferences.push,
+      },
+    });
   }
 
   if (isLoading) {

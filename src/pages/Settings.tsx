@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { ProfileSettingsForm } from "@/components/settings/ProfileSettingsForm";
 
-export default function SettingsPage() {
+export const Settings = () => {
   return (
     <div className="space-y-6">
       <div>
@@ -15,3 +15,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+export default Settings;

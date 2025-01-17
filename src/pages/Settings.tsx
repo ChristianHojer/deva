@@ -5,7 +5,7 @@ import { TwoFactorSection } from "@/components/settings/TwoFactorSection";
 import { SessionsSection } from "@/components/settings/SessionsSection";
 import { SubscriptionSection } from "@/components/settings/SubscriptionSection";
 
-const Settings = () => {
+export const Settings = () => {
   return (
     <div className="container max-w-4xl mx-auto space-y-6 p-6">
       <div>

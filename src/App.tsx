@@ -18,7 +18,7 @@ export function App() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="settings" element={<Settings />} />
           <Route path="project/:projectId">
-            <Route path="discover" element={<ChatSection />} />
+            <Route path="discover" element={<ChatSection activeTab="discover" />} />
             <Route path="dashboard" element={<ProjectDashboard />} />
             <Route path="visualize" element={<VisualizationSection />} />
             <Route path="bugs" element={<BugsList />} />

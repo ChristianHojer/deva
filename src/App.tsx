@@ -22,7 +22,6 @@ export function App() {
             <Route path="discover" element={<ChatSection activeTab="discover" />} />
             <Route path="iterate" element={<ChatSection activeTab="iterate" />} />
             <Route path="code" element={<ChatSection activeTab="code" variant="code" />} />
-            <Route path="dashboard" element={<ProjectDashboard />} />
             <Route path="visualize" element={<VisualizationSection />} />
             <Route path="bugs" element={<BugsList />} />
           </Route>

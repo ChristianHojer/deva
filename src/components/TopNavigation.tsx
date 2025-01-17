@@ -17,9 +17,8 @@ const tabGroups = [
     ]
   },
   {
-    id: 'development',
+    id: 'bugs',
     tabs: [
-      { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
       { id: 'bugs', label: 'Bugs', path: '/bugs' }
     ]
   }

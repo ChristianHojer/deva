@@ -8,6 +8,7 @@ interface Project {
   description?: string;
   created_at: string;
   updated_at: string;
+  status?: string;  // Added this field
 }
 
 export function useProjects() {

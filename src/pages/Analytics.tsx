@@ -5,13 +5,16 @@ import { useTokenUsage } from "@/hooks/useTokenUsage";
 import { supabase } from "@/lib/supabase";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { Database } from "@/integrations/supabase/types";
+
+type TokenUsageRow = Database['public']['Tables']['token_usage']['Row'];
 
 export function Analytics() {
   const { monthlyUsage, yearlyUsage, isLoading } = useTokenUsage();
   const [realtimeData, setRealtimeData] = useState<Array<{ timestamp: string; tokens: number }>>([]);
 
   useEffect(() => {
-    // Subscribe to real-time token usage updates
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -21,13 +24,12 @@ export function Analytics() {
           schema: 'public',
           table: 'token_usage'
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<TokenUsageRow>) => {
           const timestamp = new Date().toLocaleTimeString();
           const tokens = payload.new.tokens_used;
           
           setRealtimeData(prev => {
             const newData = [...prev, { timestamp, tokens }];
-            // Keep only last 10 data points for better visualization
             return newData.slice(-10);
           });
         }

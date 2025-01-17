@@ -18,7 +18,7 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { projects, isLoading, createProject, updateProject, deleteProject } = useProjects();
-  const { monthlyUsage, yearlyUsage, isLoadingTokens } = useTokenUsage();
+  const { monthlyUsage, yearlyUsage, isLoading: isLoadingTokens, error: tokenError } = useTokenUsage();
   const isMobile = useIsMobile();
   
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);

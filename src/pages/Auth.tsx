@@ -5,7 +5,6 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/lib/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 
 export function Auth() {
@@ -14,27 +13,40 @@ export function Auth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initial session check
+    let mounted = true;
+
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Session check error:', error);
-        setError(error.message);
-      } else if (session) {
-        console.log("Active session found, redirecting to dashboard");
-        navigate('/dashboard');
-      } else {
-        console.log("No active session found, showing auth form");
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session check error:', sessionError);
+          if (mounted) {
+            setError(sessionError.message);
+          }
+        } else if (session) {
+          console.log("Active session found, redirecting to dashboard");
+          if (mounted) {
+            navigate('/dashboard');
+          }
+        } else {
+          console.log("No active session found, showing auth form");
+        }
+      } catch (err) {
+        console.error('Unexpected error during session check:', err);
+        if (mounted) {
+          setError('An unexpected error occurred. Please try again.');
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-      
-      setIsLoading(false);
     };
 
     checkSession();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
@@ -44,6 +56,7 @@ export function Auth() {
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);

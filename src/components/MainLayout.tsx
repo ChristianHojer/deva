@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, Outlet } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from './AppSidebar';
 import { TopNavigation } from './TopNavigation';
